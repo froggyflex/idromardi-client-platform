@@ -1,0 +1,191 @@
+const crypto = require('crypto');
+const pool = require('../config/db');
+const { hashPassword } = require('../utils/passwordHash');
+
+function parseNumeroUtenza(numeroUtenza) {
+  const prefix = process.env.NUMERO_UTENZA_PREFIX || '400';
+  const userDigits = Number(process.env.NUMERO_UTENZA_USER_DIGITS || 4);
+  const [baseNumber, extraInterno] = numeroUtenza.split('/');
+  const baseWithoutPrefix = baseNumber.startsWith(prefix)
+    ? baseNumber.slice(prefix.length)
+    : baseNumber;
+  const condominioPart = baseWithoutPrefix.slice(0, -userDigits);
+  const userPart = baseWithoutPrefix.slice(-userDigits);
+  const userIds = [Number(userPart)];
+
+  if (extraInterno) {
+    userIds.push(Number(extraInterno));
+  }
+
+  return {
+    idCondominio: Number(condominioPart),
+    userIds: [...new Set(userIds)],
+  };
+}
+
+async function findMatchingUser(payload) {
+  const { idCondominio, userIds } = parseNumeroUtenza(payload.numeroUtenza);
+  const userPlaceholders = userIds.map(() => '?').join(', ');
+
+  const [rows] = await pool.execute(
+    `
+      SELECT
+        u.id AS id_auto,
+        u.id_user,
+        c.codice AS id_Condominio,
+        u.Interno,
+        u.Nome,
+        u.Cognome,
+        u.Stato AS Status
+      FROM utenze_v2 u
+      INNER JOIN condomini_v2 c
+        ON c.id = u.condominio_id
+      WHERE c.codice = ?
+        AND u.id_user IN (${userPlaceholders})
+        AND LOWER(TRIM(u.Nome)) = LOWER(TRIM(?))
+        AND LOWER(TRIM(u.Cognome)) = LOWER(TRIM(?))
+        AND u.Stato = 'ATTIVA'
+    `,
+    [idCondominio, ...userIds, payload.nome, payload.cognome],
+  );
+
+  const matchedUserIds = new Set(rows.map((row) => Number(row.id_user)));
+  const allUsersMatched = userIds.every((idUser) => matchedUserIds.has(idUser));
+
+  if (!allUsersMatched) {
+    return null;
+  }
+
+  return {
+    idCondominio,
+    userIds,
+    users: rows,
+    primaryUser: rows[0],
+  };
+}
+
+async function sendConfirmationCode(match, email) {
+  const confirmationCode = crypto.randomInt(100000, 999999).toString();
+  const codeHash = crypto.createHash('sha256').update(confirmationCode).digest('hex');
+  const password = hashPassword(confirmationCode);
+  const requestId = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  const primaryUser = match.primaryUser;
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    await connection.execute(
+      `
+        UPDATE registration_confirmation_codes
+        SET consumed_at = NOW()
+        WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
+          AND id_Condominio = ?
+          AND consumed_at IS NULL
+      `,
+      [email, match.idCondominio],
+    );
+
+    await connection.execute(
+      `
+        INSERT INTO registration_confirmation_codes
+          (
+            request_id,
+            id_Condominio,
+            id_users_json,
+            interni_json,
+            nome,
+            cognome,
+            email,
+            code_hash,
+            expires_at,
+            created_at
+          )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+      `,
+      [
+        requestId,
+        match.idCondominio,
+        JSON.stringify(match.userIds),
+        JSON.stringify(match.users.map((user) => user.Interno)),
+        primaryUser.Nome,
+        primaryUser.Cognome,
+        email,
+        codeHash,
+        expiresAt,
+      ],
+    );
+
+    await connection.execute(
+      `
+        UPDATE registration_confirmation_codes
+        SET consumed_at = NOW()
+        WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
+          AND id_Condominio = ?
+          AND request_id <> ?
+          AND consumed_at IS NULL
+      `,
+      [email, match.idCondominio, requestId],
+    );
+
+    for (const user of match.users) {
+      await connection.execute(
+        `
+          INSERT INTO activated_portal_users
+            (
+              id_Condominio,
+              id_user,
+              id_auto,
+              interno,
+              email,
+              password_hash,
+              password_salt,
+              must_change_password,
+              temp_password_expires_at,
+              status,
+              activated_at,
+              created_at
+            )
+          VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, 'ACTIVE', NOW(), NOW())
+          ON DUPLICATE KEY UPDATE
+            email = VALUES(email),
+            password_hash = VALUES(password_hash),
+            password_salt = VALUES(password_salt),
+            must_change_password = 1,
+            temp_password_expires_at = VALUES(temp_password_expires_at),
+            status = 'ACTIVE',
+            updated_at = NOW()
+        `,
+        [
+          match.idCondominio,
+          user.id_user,
+          user.id_auto,
+          user.Interno,
+          email,
+          password.hash,
+          password.salt,
+          expiresAt,
+        ],
+      );
+    }
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+
+  // Replace this with the real email provider integration.
+  console.log(`Confirmation code for ${email}: ${confirmationCode}`);
+
+  return { requestId };
+}
+
+module.exports = {
+  findMatchingUser,
+  sendConfirmationCode,
+  parseNumeroUtenza,
+};

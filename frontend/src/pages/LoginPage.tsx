@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Droplets, ShieldCheck } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '../components/BrandLogo';
 import { login } from '../services/api';
+import type { LoginResponse } from '../services/api';
 
 type LoginPageProps = {
-  onLogin: (token: string) => void;
+  onLogin: (session: LoginResponse) => void;
 };
 
 export function LoginPage({ onLogin }: LoginPageProps) {
@@ -21,8 +22,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
     try {
       const session = await login(email, password);
-      onLogin(session.token);
-      navigate('/portal');
+      onLogin(session);
+      navigate(session.mustChangePassword ? '/cambia-password' : '/portal');
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : 'Accesso non riuscito.');
     }
@@ -105,10 +106,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                 <button className="link-button" type="button">
                   Hai dimenticato la password?
                 </button>
-                <button className="muted-button" type="button">
+                <Link className="muted-button" to="/registrati">
                   Richiedi accesso
-                </button>
+                </Link>
               </div>
+              <Link className="register-button" to="/registrati">
+                Registrati
+              </Link>
             </form>
           </div>
         </section>

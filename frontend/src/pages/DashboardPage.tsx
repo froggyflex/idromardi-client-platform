@@ -4,7 +4,7 @@ import { ConsumptionChart } from '../components/ConsumptionChart';
 import { InvoiceTable } from '../components/InvoiceTable';
 import { MetricCard } from '../components/MetricCard';
 import { ProfilePanel } from '../components/ProfilePanel';
-import { getPortalData } from '../services/api';
+import { getCurrentPortalData } from '../services/api';
 import type { PortalData } from '../types/portal';
 
 function formatCurrency(value: number) {
@@ -16,10 +16,16 @@ function formatCurrency(value: number) {
 
 export function DashboardPage() {
   const [data, setData] = useState<PortalData | null>(null);
+  const [error, setError] = useState('');
+  const email = window.localStorage.getItem('idromardi_email') || '';
 
   useEffect(() => {
-    void getPortalData().then(setData);
-  }, []);
+    void getCurrentPortalData(email)
+      .then(setData)
+      .catch((caughtError) => {
+        setError(caughtError instanceof Error ? caughtError.message : 'Dati portale non disponibili.');
+      });
+  }, [email]);
 
   const averageUsage = useMemo(() => {
     if (!data) {
@@ -31,7 +37,11 @@ export function DashboardPage() {
   }, [data]);
 
   if (!data) {
-    return <main className="dashboard loading-state">Caricamento portale...</main>;
+    return (
+      <main className="dashboard loading-state">
+        {error || 'Caricamento portale...'}
+      </main>
+    );
   }
 
   const currentInvoice = data.invoices[0];
@@ -78,7 +88,10 @@ export function DashboardPage() {
           <ConsumptionChart readings={data.readings} />
           <InvoiceTable invoices={data.invoices} />
         </div>
-        <ProfilePanel customer={data.customer} serviceNotes={data.serviceNotes} />
+        <ProfilePanel
+          customer={data.customer}
+          serviceNotes={data.serviceNotes}
+        />
       </div>
     </main>
   );

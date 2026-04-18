@@ -2,8 +2,12 @@ import type { ReactNode } from 'react';
 
 export type Customer = {
   name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
+  mobile: string;
+  fiscalCode: string;
   accountNo: string;
   meterNo: string;
   address: string;
@@ -33,6 +37,12 @@ export type PortalData = {
   invoices: Invoice[];
   readings: Reading[];
   serviceNotes: string[];
+};
+
+export type PortalProfileUpdate = {
+  phone: string;
+  mobile: string;
+  fiscalCode: string;
 };
 
 export type Metric = {

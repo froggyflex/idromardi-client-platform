@@ -4,22 +4,30 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "eslint .",
-    "typecheck": "tsc -b --pretty false"
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "vite --config frontend/vite.config.ts --host 127.0.0.1 --port 5174 --strictPort",
+    "dev:client": "npm run dev:frontend",
+    "dev:server": "node backend/server.js",
+    "dev:server:4001": "set PORT=4001&& node backend/server.js",
+    "build": "tsc -b frontend/tsconfig.json && vite build --config frontend/vite.config.ts",
+    "preview": "vite preview --config frontend/vite.config.ts",
+    "lint": "eslint frontend backend",
+    "typecheck": "tsc -b frontend/tsconfig.json --pretty false"
   },
   "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "lucide-react": "^0.544.0",
+    "mysql2": "^3.22.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.14.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^5.0.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",

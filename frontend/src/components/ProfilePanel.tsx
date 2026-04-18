@@ -10,12 +10,12 @@ export function ProfilePanel({ customer, serviceNotes }: ProfilePanelProps) {
   const profileItems = [
     { icon: <User size={17} />, label: 'Intestatario', value: customer.name },
     { icon: <Mail size={17} />, label: 'Email', value: customer.email },
-    { icon: <Phone size={17} />, label: 'Telefono', value: customer.phone },
+    { icon: <Phone size={17} />, label: 'Cellulare', value: customer.mobile || 'Non indicato' },
     { icon: <MapPin size={17} />, label: 'Indirizzo fornitura', value: customer.address },
   ];
 
   return (
-    <aside className="profile-column" id="profile">
+    <aside className="profile-column">
       <section className="panel profile-panel">
         <div className="avatar" aria-hidden="true">
           {customer.name

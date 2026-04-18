@@ -14,23 +14,23 @@ export function DashboardLayout({ onLogout }: DashboardLayoutProps) {
           <BrandLogo className="brand-logo" />
         </div>
         <nav aria-label="Navigazione cliente">
-          <NavLink to="/portal" end>
+          <a href="/portal#overview">
             <Home size={18} />
             Riepilogo
-          </NavLink>
-          <NavLink to="/portal#consumption">
+          </a>
+          <a href="/portal#consumption">
             <Gauge size={18} />
             Consumi
-          </NavLink>
-          <NavLink to="/portal#invoices">
+          </a>
+          <a href="/portal#invoices">
             <FileText size={18} />
             Fatture
-          </NavLink>
-          <NavLink to="/portal#payments">
+          </a>
+          <a href="/portal#payments">
             <CreditCard size={18} />
             Pagamenti
-          </NavLink>
-          <NavLink to="/portal#profile">
+          </a>
+          <NavLink to="/portal/profilo">
             <User size={18} />
             Profilo
           </NavLink>
