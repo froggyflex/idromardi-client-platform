@@ -1,5 +1,79 @@
 # Changelog
 
+## 2026-04-22
+
+### Registration Flow Enhancements
+
+#### `backend/services/registrationService.js`
+
+- `sendConfirmationCode()` now returns `{ requestId, expiresAt }` instead of just `{ requestId }`
+- `resendConfirmationCode()` now returns `{ requestId, expiresAt }` instead of just `{ requestId }`
+- `expiresAt` is ISO 8601 formatted datetime string
+
+#### `backend/controllers/registrationController.js`
+
+- Both `requestRegistration` and `resendCode` controllers now pass through `expiresAt` in API responses
+
+#### `frontend/src/services/api.ts`
+
+- `requestRegistration()` return type updated to include `expiresAt: string`
+- `resendConfirmationCode()` return type updated to include `expiresAt: string`
+
+#### `frontend/src/pages/RegisterPage.tsx`
+
+- Added countdown timer state (`expiresAt`, `countdown`)
+- Added `useEffect` hook for 1-second interval countdown updates
+- Added `formatCountdown()` helper (MM:SS format)
+- Resend button now shows `"Invia codice dopo MM:SS"` when countdown > 0
+- Resend button disabled when `countdown > 0 || status === 'resending'`
+- Countdown initialized on both successful registration request and resend
+
+---
+
+### Database Migrations
+
+#### Migration `006_fix_id_auto_type.sql` (new file)
+
+```sql
+ALTER TABLE activated_portal_users
+  MODIFY id_auto CHAR(36) NOT NULL;
+```
+
+**Reason:** Production `utenze_v2.id` is a `CHAR(36)` UUID. The test schema used `INT`, but production uses UUIDs. Changing `id_auto` to `CHAR(36)` allows proper storage of UUID values from `utenze_v2.id`.
+
+#### Manual DB Fixes Applied to Dev Database
+
+- Dropped orphaned `nome` and `cognome` columns from `activated_portal_users`
+- Added `resend_count` column to `registration_confirmation_codes` (was missing in some DB instances)
+
+#### `tests/fixtures/seed.sql`
+
+- Changed `condomini_v2.codice = '1'` (was `'400'`) to match actual query expectations
+
+---
+
+### E2E Tests
+
+- All 26 tests now passing
+- Issue resolved: stale container state required `docker compose down -v` before fresh test run
+
+---
+
+### Documentation
+
+#### `README.md`
+
+Added new sections:
+
+- **Testing** — E2E test commands, test structure (26 tests across 7 suites), quality checks (`typecheck`, `lint`)
+- **Docker Development** — Dev stack, test stack, DB connection via Docker
+- **Database Migrations** — How to apply migrations, inspect table structure
+- **Environment Variables** — Complete backend `.env` reference, frontend `.env`, Docker Compose variable overrides
+- **Database Operations** — Unregister user SQL, check user exists
+- **Registration Flow** — API endpoints, payloads, response format, code validity (15 min), countdown UI behavior, numero utenza format, user matching rules
+
+---
+
 ## 2026-04-20
 
 ### Docker Configuration Changes
