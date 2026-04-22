@@ -1,0 +1,48 @@
+services:
+  frontend:
+    image: node:20
+    container_name: idromardi-client-plat-frontend-dev
+    working_dir: /app/src
+    command: npm run dev:docker
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./:/app/src
+      - /app/src/frontend/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=/api
+      - VITE_API_PROXY_URL=http://backend:4000
+
+  backend:
+    image: node:20
+    container_name: idromardi-client-plat-backend-dev
+    working_dir: /app
+    command: node --watch src/backend/server.js
+    ports:
+      - "4002:4000"
+    volumes:
+      - ./:/app/src
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - CLIENT_ORIGIN=http://localhost:5174
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-rootpassword}
+      - DB_NAME=${DB_NAME:-miteamx1_fatturazione}
+      - DB_PORT=${DB_PORT:-3306}
+      - NUMERO_UTENZA_PREFIX=${NUMERO_UTENZA_PREFIX:-400}
+      - NUMERO_UTENZA_USER_DIGITS=${NUMERO_UTENZA_USER_DIGITS:-4}
+      - HTTP_RESPONSE_TIMEOUT_MS=${HTTP_RESPONSE_TIMEOUT_MS:-15000}
+      - DB_CONNECT_TIMEOUT_MS=${DB_CONNECT_TIMEOUT_MS:-8000}
+      - SMTP_HOST=${SMTP_HOST:-smtps.aruba.it}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-true}
+      - SMTP_USER=${SMTP_USER:-noreply@idromardi.it}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@idromardi.it}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+

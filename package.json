@@ -7,12 +7,19 @@
     "dev": "npm run dev:frontend",
     "dev:frontend": "vite --config frontend/vite.config.ts --host 127.0.0.1 --port 5174 --strictPort",
     "dev:client": "npm run dev:frontend",
+    "dev:docker": "vite --config frontend/vite.config.ts --host 0.0.0.0 --port 5174 --strictPort",
     "dev:server": "node backend/server.js",
     "dev:server:4001": "set PORT=4001&& node backend/server.js",
     "build": "tsc -b frontend/tsconfig.json && vite build --config frontend/vite.config.ts",
     "preview": "vite preview --config frontend/vite.config.ts",
     "lint": "eslint frontend backend",
-    "typecheck": "tsc -b frontend/tsconfig.json --pretty false"
+    "typecheck": "tsc -b frontend/tsconfig.json --pretty false",
+    "test:e2e": "docker compose -f docker-compose.test.yml up --build -d && sleep 8 && npx playwright test && docker compose -f docker-compose.test.yml down -v",
+    "test:e2e:start": "docker compose -f docker-compose.test.yml up --build -d",
+    "test:e2e:stop": "docker compose -f docker-compose.test.yml down -v",
+    "test:e2e:run": "npx playwright test",
+    "test:e2e:headed": "docker compose -f docker-compose.test.yml up --build -d && sleep 8 && npx playwright test --headed && docker compose -f docker-compose.test.yml down -v",
+    "test:e2e:install": "playwright install --with-deps"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -20,11 +27,13 @@
     "express": "^5.2.1",
     "lucide-react": "^0.544.0",
     "mysql2": "^3.22.1",
+    "nodemailer": "^6.10.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.14.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.0.4",
@@ -32,6 +41,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
+    "mysql2": "^3.22.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.58.2",
     "vite": "^7.1.7"

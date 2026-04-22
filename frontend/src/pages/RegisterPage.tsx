@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { ArrowLeft, Droplets, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BrandLogo } from '../components/BrandLogo';
-import { requestRegistration } from '../services/api';
+import { requestRegistration, resendConfirmationCode } from '../services/api';
 
 type RegisterForm = {
   numeroUtenza: string;
@@ -21,14 +21,36 @@ const initialForm: RegisterForm = {
 
 export function RegisterPage() {
   const [form, setForm] = useState(initialForm);
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'resending'>('idle');
   const [message, setMessage] = useState('');
+  const [requestId, setRequestId] = useState('');
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    if (!expiresAt || countdown <= 0) return;
+    const interval = setInterval(() => {
+      const remaining = Math.max(
+        0,
+        Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000),
+      );
+      setCountdown(remaining);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt, countdown]);
+
+  function formatCountdown(seconds: number) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
 
   function updateField(field: keyof RegisterForm, value: string) {
     setForm((currentForm) => ({ ...currentForm, [field]: value }));
     if (status === 'success') {
       setStatus('idle');
       setMessage('');
+      setRequestId('');
     }
   }
 
@@ -41,12 +63,36 @@ export function RegisterPage() {
       const result = await requestRegistration(form);
       setStatus('success');
       setMessage(result.message);
+      setRequestId(result.requestId);
+      setExpiresAt(result.expiresAt);
+      setCountdown(Math.floor((new Date(result.expiresAt).getTime() - Date.now()) / 1000));
     } catch (caughtError) {
       setStatus('error');
       setMessage(
         caughtError instanceof Error
           ? caughtError.message
           : 'Non e stato possibile inviare la richiesta.',
+      );
+    }
+  }
+
+  async function handleResend() {
+    if (!requestId) return;
+    setStatus('resending');
+    setMessage('');
+
+    try {
+      const result = await resendConfirmationCode(requestId);
+      setStatus('success');
+      setMessage(result.message);
+      setExpiresAt(result.expiresAt);
+      setCountdown(Math.floor((new Date(result.expiresAt).getTime() - Date.now()) / 1000));
+    } catch (caughtError) {
+      setStatus('success');
+      setMessage(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Non e stato possibile inviare un nuovo codice.',
       );
     }
   }
@@ -127,20 +173,34 @@ export function RegisterPage() {
               />
             </label>
             {message && (
-              <p className={status === 'success' ? 'form-success' : 'form-error'}>{message}</p>
+              <p className={status === 'success' || status === 'resending' ? 'form-success' : 'form-error'}>{message}</p>
             )}
             <button
               className="primary-button login-submit"
               type="submit"
-              disabled={status === 'submitting' || status === 'success'}
+              disabled={status === 'submitting' || status === 'success' || status === 'resending'}
             >
               <Send size={18} />
               {status === 'submitting'
                 ? 'Verifica in corso...'
-                : status === 'success'
+                : status === 'success' || status === 'resending'
                   ? 'Codice inviato'
                   : 'Cerca utenza'}
             </button>
+            {(status === 'success' || status === 'resending') && requestId && (
+              <button
+                type="button"
+                className="resend-link"
+                onClick={handleResend}
+                disabled={countdown > 0 || status === 'resending'}
+              >
+                {countdown > 0
+                  ? `Invia codice dopo ${formatCountdown(countdown)}`
+                  : status === 'resending'
+                    ? 'Invio in corso...'
+                    : 'Invia di nuovo il codice'}
+              </button>
+            )}
           </form>
         </div>
       </section>

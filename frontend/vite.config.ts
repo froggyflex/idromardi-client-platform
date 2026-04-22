@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://127.0.0.1:4000',
+      '/api': process.env.VITE_API_PROXY_URL || 'http://127.0.0.1:4000',
     },
   },
 });

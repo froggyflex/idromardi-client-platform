@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('./config/env');
 
 const registrationRoutes = require('./routes/registrationRoutes');
@@ -48,6 +49,15 @@ app.use((err, _req, res, _next) => {
     message: err.publicMessage || 'Errore interno del server.',
   });
 });
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  app.get('*splat', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+    }
+  });
+}
 
 app.listen(port, () => {
   console.log(`Idromardi API listening on http://127.0.0.1:${port}`);

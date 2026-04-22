@@ -1,0 +1,51 @@
+services:
+  test-db:
+    image: mysql:8
+    container_name: idromardi-test-db
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: idromardi_test
+    volumes:
+      - ./tests/fixtures/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./tests/fixtures/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-test:
+    image: node:20
+    container_name: idromardi-backend-test
+    working_dir: /app/src
+    command: node backend/server.js
+    ports:
+      - "4003:4000"
+    volumes:
+      - ./backend:/app/src/backend
+      - ./node_modules:/app/src/node_modules
+      - ./package.json:/app/src/package.json
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - CLIENT_ORIGIN=http://localhost:5174
+      - DB_HOST=test-db
+      - DB_USER=root
+      - DB_PASSWORD=test
+      - DB_NAME=idromardi_test
+      - DB_PORT=3306
+      - NUMERO_UTENZA_PREFIX=400
+      - NUMERO_UTENZA_USER_DIGITS=4
+      - HTTP_RESPONSE_TIMEOUT_MS=15000
+      - DB_CONNECT_TIMEOUT_MS=8000
+      - SMTP_HOST=smtp.ethereal.email
+      - SMTP_PORT=587
+      - SMTP_SECURE=false
+      - SMTP_USER=pd5jrpxcw3sl5vzj@ethereal.email
+      - SMTP_PASS=wPCVU189e3NCnbPWB3
+      - EMAIL_FROM=test@idromardi.it
+    depends_on:
+      test-db:
+        condition: service_healthy

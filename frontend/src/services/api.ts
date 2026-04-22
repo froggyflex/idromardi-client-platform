@@ -157,12 +157,13 @@ export type RegistrationRequest = {
   email: string;
 };
 
-export async function requestRegistration(payload: RegistrationRequest): Promise<{ message: string }> {
+export async function requestRegistration(
+  payload: RegistrationRequest,
+): Promise<{ message: string; requestId: string; expiresAt: string }> {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
   try {
-     
     const response = await fetch(`${API_BASE_URL}/registration/request`, {
       method: 'POST',
       headers: {
@@ -172,13 +173,17 @@ export async function requestRegistration(payload: RegistrationRequest): Promise
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { message?: string };
+    const data = (await response.json()) as { message?: string; requestId?: string; expiresAt?: string };
 
     if (!response.ok) {
       throw new Error(data.message || 'Registrazione non riuscita.');
     }
 
-    return { message: data.message || 'Richiesta inviata correttamente.' };
+    return {
+      message: data.message || 'Richiesta inviata correttamente.',
+      requestId: data.requestId || '',
+      expiresAt: data.expiresAt || '',
+    };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new Error('Il server non ha risposto in tempo. Controlla che il backend sia avviato.');
@@ -188,4 +193,22 @@ export async function requestRegistration(payload: RegistrationRequest): Promise
   } finally {
     window.clearTimeout(timeoutId);
   }
+}
+
+export async function resendConfirmationCode(requestId: string): Promise<{ message: string; expiresAt: string }> {
+  const response = await fetch(`${API_BASE_URL}/registration/resend`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ requestId }),
+  });
+
+  const data = (await response.json()) as { message?: string; expiresAt?: string };
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Invio codice non riuscito.');
+  }
+
+  return { message: data.message || 'Nuovo codice inviato.', expiresAt: data.expiresAt || '' };
 }

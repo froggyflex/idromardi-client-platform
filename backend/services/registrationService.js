@@ -1,6 +1,9 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const pool = require('../config/db');
 const { hashPassword } = require('../utils/passwordHash');
+const { sendEmail } = require('../utils/emailSender');
 
 function parseNumeroUtenza(numeroUtenza) {
   const prefix = process.env.NUMERO_UTENZA_PREFIX || '400';
@@ -178,14 +181,106 @@ async function sendConfirmationCode(match, email) {
     connection.release();
   }
 
-  // Replace this with the real email provider integration.
-  console.log(`Confirmation code for ${email}: ${confirmationCode}`);
+  const templatePath = path.join(__dirname, '../templates/email/registration-code.html');
+  let html = fs.readFileSync(templatePath, 'utf8');
+  html = html.replace('{{CODE}}', confirmationCode);
 
-  return { requestId };
+  await sendEmail(email, 'Codice di accesso Idromardi', html);
+
+  return { requestId, expiresAt: expiresAt.toISOString() };
+}
+
+async function resendConfirmationCode(requestId) {
+  const [rows] = await pool.execute(
+    `
+      SELECT
+        id,
+        email,
+        expires_at,
+        consumed_at,
+        resend_count
+      FROM registration_confirmation_codes
+      WHERE request_id = ?
+    `,
+    [requestId],
+  );
+
+  if (rows.length === 0) {
+    throw Object.assign(new Error('Richiesta non trovata.'), { statusCode: 404 });
+  }
+
+  const record = rows[0];
+
+  if (record.consumed_at !== null) {
+    throw Object.assign(new Error('Codice già utilizzato. Richiedi una nuova registrazione.'), { statusCode: 400 });
+  }
+
+  if (new Date(record.expires_at) > new Date()) {
+    throw Object.assign(new Error('Codice ancora valido. Controlla la tua email.'), { statusCode: 400 });
+  }
+
+  if (record.resend_count >= 3) {
+    throw Object.assign(new Error('Limite di invii raggiunto. Richiedi una nuova registrazione.'), { statusCode: 400 });
+  }
+
+  const confirmationCode = crypto.randomInt(100000, 999999).toString();
+  const codeHash = crypto.createHash('sha256').update(confirmationCode).digest('hex');
+  const password = hashPassword(confirmationCode);
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    await connection.execute(
+      `
+        UPDATE registration_confirmation_codes
+        SET
+          code_hash = ?,
+          expires_at = ?,
+          resend_count = resend_count + 1,
+          updated_at = NOW()
+        WHERE request_id = ?
+      `,
+      [codeHash, expiresAt, requestId],
+    );
+
+    await connection.execute(
+      `
+        UPDATE activated_portal_users
+        SET
+          password_hash = ?,
+          password_salt = ?,
+          must_change_password = 1,
+          temp_password_expires_at = ?,
+          status = 'ACTIVE',
+          updated_at = NOW()
+        WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
+      `,
+      [password.hash, password.salt, expiresAt, record.email],
+    );
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+
+  const templatePath = path.join(__dirname, '../templates/email/registration-code.html');
+  let html = fs.readFileSync(templatePath, 'utf8');
+  html = html.replace('{{CODE}}', confirmationCode);
+
+  await sendEmail(record.email, 'Codice di accesso Idromardi', html);
+
+  return { requestId, expiresAt: expiresAt.toISOString() };
 }
 
 module.exports = {
   findMatchingUser,
   sendConfirmationCode,
+  resendConfirmationCode,
   parseNumeroUtenza,
 };

@@ -4,7 +4,7 @@ const {
 } = require('../services/portalService');
 
 function getEmailFromRequest(req) {
-  return String(req.query.email || req.body.email || '').trim().toLowerCase();
+  return String((req.query && req.query.email) || (req.body && req.body.email) || '').trim().toLowerCase();
 }
 
 async function getCurrentPortalUser(req, res, next) {

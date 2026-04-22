@@ -1,4 +1,4 @@
-const { findMatchingUser, sendConfirmationCode } = require('../services/registrationService');
+const { findMatchingUser, sendConfirmationCode, resendConfirmationCode } = require('../services/registrationService');
 const { normalizeRegistrationPayload, validateRegistrationPayload } = require('../utils/registrationValidation');
 
 async function requestRegistration(req, res, next) {
@@ -6,7 +6,6 @@ async function requestRegistration(req, res, next) {
     const payload = normalizeRegistrationPayload(req.body);
     const validationError = validateRegistrationPayload(payload);
 
-     
     if (validationError) {
       return res.status(400).json({ message: validationError });
     }
@@ -26,6 +25,27 @@ async function requestRegistration(req, res, next) {
       message:
         'Utenza trovata. Ti abbiamo inviato un codice via email per confermare la registrazione.',
       requestId: confirmation.requestId,
+      expiresAt: confirmation.expiresAt,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function resendCode(req, res, next) {
+  try {
+    const { requestId } = req.body;
+
+    if (!requestId) {
+      return res.status(400).json({ message: 'requestId è obbligatorio.' });
+    }
+
+    const result = await resendConfirmationCode(requestId);
+
+    return res.status(200).json({
+      message: 'Nuovo codice inviato alla tua email.',
+      requestId: result.requestId,
+      expiresAt: result.expiresAt,
     });
   } catch (error) {
     return next(error);
@@ -34,4 +54,5 @@ async function requestRegistration(req, res, next) {
 
 module.exports = {
   requestRegistration,
+  resendCode,
 };

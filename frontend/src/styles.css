@@ -484,6 +484,24 @@ input:focus {
   font-weight: 900;
 }
 
+.resend-link {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  color: #005fae;
+  background: none;
+  border: none;
+  font-weight: 900;
+  cursor: pointer;
+  text-align: center;
+}
+
+.resend-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

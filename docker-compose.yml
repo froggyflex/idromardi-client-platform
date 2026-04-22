@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: idromardi-client-plat-backend
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - CLIENT_ORIGIN=http://localhost:5174
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      - DB_NAME=${DB_NAME:-idromardi}
+      - DB_PORT=${DB_PORT:-3306}
+      - NUMERO_UTENZA_PREFIX=${NUMERO_UTENZA_PREFIX:-400}
+      - NUMERO_UTENZA_USER_DIGITS=${NUMERO_UTENZA_USER_DIGITS:-4}
+      - HTTP_RESPONSE_TIMEOUT_MS=${HTTP_RESPONSE_TIMEOUT_MS:-15000}
+      - DB_CONNECT_TIMEOUT_MS=${DB_CONNECT_TIMEOUT_MS:-8000}
+      - SMTP_HOST=${SMTP_HOST:-smtp.example.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER:-placeholder}
+      - SMTP_PASS=${SMTP_PASS:-placeholder}
+      - EMAIL_FROM=${EMAIL_FROM:-info@idromardi.it}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/api/health').then(r=>{if(!r.ok)process.exit(1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
