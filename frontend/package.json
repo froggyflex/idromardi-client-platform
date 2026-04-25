@@ -1,0 +1,22 @@
+{
+  "name": "idromardi-client-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "vite": "^7.2.4",
+    "typescript": "^5.9.3",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "axios": "^1.13.2",
+    "lucide-react": "^0.562.0",
+    "react-router-dom": "^7.11.0"
+  },
+  "devDependencies": {}
+}
