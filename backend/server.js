@@ -9,14 +9,19 @@ const portalRoutes = require('./routes/portalRoutes');
 
 const app = express();
 const port = process.env.PORT || 4000;
-const clientOrigins = (process.env.CLIENT_ORIGIN || 'http://127.0.0.1:5174, http://localhost:5174')
-  .split(',')
-  .map((origin) => origin.trim());
+ 
+
+ const allowedOrigins = [
+  "http://app.idromardi.it",
+  "https://app.idromardi.it",
+  "https://idromardi-client-platform.onrender.com"
+];
+
 
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || clientOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
