@@ -2,6 +2,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "node server.js",
+     "build": "vite build",
     "dev:server": "node server.js",
     "dev:server:4001": "set PORT=4001&& node server.js",
     "start": "node server.js"
