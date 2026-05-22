@@ -11,6 +11,14 @@ const portalRoutes = require("./routes/portalRoutes");
 
 const app = express();
 const port = process.env.PORT || 4000;
+
+app.use(
+  "/storage",
+  express.static(path.join(process.cwd(), "storage"))
+);
+
+
+
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
@@ -96,6 +104,7 @@ app.use((req, res, next) => {
 ========================= */
 app.use(express.json());
 
+
 /* =========================
    TIMEOUT HANDLING
 ========================= */
@@ -129,12 +138,34 @@ app.get("/api/debug", (_req, res) => {
 });
 
 
+
 /* =========================
    ROUTES
 ========================= */
 app.use("/api/registration", registrationRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/portal", portalRoutes);
+
+app.get("/api/debug", (_req, res) => {
+  res.json({
+    runningFile: __filename,
+    cwd: process.cwd(),
+    time: new Date().toISOString()
+  });
+});
+
+app.get("/api/debug/storage", (_req, res) => {
+  const storageRoot = path.join(process.cwd(), "storage");
+
+  res.json({
+    ok: true,
+    runningFile: __filename,
+    cwd: process.cwd(),
+    dirname: __dirname,
+    storageRoot,
+    storageExists: fs.existsSync(storageRoot),
+  });
+});
 
 /* =========================
    ERROR HANDLER

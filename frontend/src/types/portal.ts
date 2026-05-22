@@ -21,10 +21,32 @@ export type Invoice = {
   id: string;
   period: string;
   issued: string;
-  due: string;
+  due?: string | null;
   consumption: number;
   amount: number;
-  status: InvoiceStatus;
+  status: string;
+  readingPrevious?: number | null;
+  readingCurrent?: number | null;
+  fileUrl?: string | null;
+};
+
+export type InvoiceEmitted = {
+  id: string | number;
+
+  period: string;
+  periodKey?: string | null;
+
+  issued?: string | null;
+  createdAt?: string | null;
+
+  filename?: string | null;
+  filepath?: string | null;
+  fileUrl?: string | null;
+
+  status: "available" | "missing" | string;
+  interno: string | null;
+  idUtenza?: string | null;
+  condominioId?: string | number | null;
 };
 
 export type Reading = {
@@ -34,7 +56,10 @@ export type Reading = {
 
 export type PortalData = {
   customer: Customer;
-  invoices: Invoice[];
+
+  latestInvoice: Invoice | null;   
+  invoices: Invoice[];             
+  billDocumentRows: [];
   readings: Reading[];
   serviceNotes: string[];
 };

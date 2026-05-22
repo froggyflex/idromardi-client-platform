@@ -1,0 +1,576 @@
+[2026-04-26T14:47:59.815Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-26T14:47:59.818Z] SERVER STARTED ON PORT 4000
+[2026-04-26T14:52:39.512Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-26T14:52:39.516Z] SERVER STARTED ON PORT 4000
+[2026-04-26T16:05:35.859Z] GET /api/dashboard/stats ORIGIN=http://localhost:5173
+[2026-04-26T16:05:35.865Z] GET /api/dashboard/stats ORIGIN=http://localhost:5173
+[2026-04-26T16:05:35.866Z] GET /api/dashboard/map ORIGIN=http://localhost:5173
+[2026-04-26T16:05:35.868Z] GET /api/dashboard/map ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.084Z] GET /api/financial-summary/fatture ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.086Z] GET /api/financial-summary ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.087Z] GET /api/financial-summary/recent ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.088Z] GET /api/financial-summary/fatture ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.089Z] GET /api/financial-summary ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.090Z] GET /api/financial-summary/imported-documents?page=1&pageSize=25&documentType=FATTURA&search= ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.092Z] GET /api/financial-summary/recent ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.092Z] GET /api/financial-summary/imported-documents?page=1&pageSize=25&documentType=FATTURA&search= ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.094Z] GET /api/financial-summary/imported-documents?page=1&pageSize=25&documentType=FATTURA&search= ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.095Z] GET /api/financial-summary/imported-documents?page=1&pageSize=25&documentType=FATTURA&search= ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.097Z] GET /api/financial-summary/imported-documents?page=1&pageSize=25&documentType=FATTURA&search= ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.098Z] GET /api/financial-summary/imported-documents?page=1&pageSize=25&documentType=FATTURA&search= ORIGIN=http://localhost:5173
+[2026-04-26T16:05:37.441Z] GET /api/financial-summary/imported-documents?page=1&pageSize=25&documentType=FATTURA&search= ORIGIN=http://localhost:5173
+[2026-04-26T16:05:38.123Z] GET /api/financial-summary/fatture ORIGIN=http://localhost:5173
+[2026-04-30T07:42:39.516Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T07:57:16.527Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:05:01.695Z] GET /api/health ORIGIN=none
+[2026-04-30T08:17:00.983Z] GET /api/auth/login ORIGIN=none
+[2026-04-30T08:17:48.676Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:17:49.894Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-04-30T08:18:09.845Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-04-30T08:18:31.453Z] ERROR: connect ETIMEDOUT 94.177.209.30:587
+[2026-04-30T08:22:43.814Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:22:48.202Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-04-30T08:23:09.566Z] ERROR: connect ETIMEDOUT 94.177.209.30:587
+[2026-04-30T08:24:12.235Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-04-30T08:24:30.493Z] POST /api/auth/change-temporary-password ORIGIN=http://localhost:5173
+[2026-04-30T08:24:31.277Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:24:31.281Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:24:31.284Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:24:31.292Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:28:14.934Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:28:14.938Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:28:14.941Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:28:14.945Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:28:28.360Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:28:28.362Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:28:28.366Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:28:28.375Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:28:40.938Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:28:43.512Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:28:43.533Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:28:43.538Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:28:43.541Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:29:33.924Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:29:33.928Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:29:33.931Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:29:33.934Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:29:40.105Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:29:43.419Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:29:43.441Z] ERROR: COLLATION 'utf8mb4_unicode_ci' is not valid for CHARACTER SET 'binary'
+[2026-04-30T08:29:43.580Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:29:43.583Z] ERROR: COLLATION 'utf8mb4_unicode_ci' is not valid for CHARACTER SET 'binary'
+[2026-04-30T08:30:35.528Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:30:35.531Z] ERROR: COLLATION 'utf8mb4_unicode_ci' is not valid for CHARACTER SET 'binary'
+[2026-04-30T08:30:35.535Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:30:35.538Z] ERROR: COLLATION 'utf8mb4_unicode_ci' is not valid for CHARACTER SET 'binary'
+[2026-04-30T08:30:47.298Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:30:52.402Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:30:52.423Z] ERROR: COLLATION 'utf8mb4_unicode_ci' is not valid for CHARACTER SET 'binary'
+[2026-04-30T08:30:52.428Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:30:52.431Z] ERROR: COLLATION 'utf8mb4_unicode_ci' is not valid for CHARACTER SET 'binary'
+[2026-04-30T08:32:20.587Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:32:31.072Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:32:31.099Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:32:31.104Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:32:31.108Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:34:39.003Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:34:42.553Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:34:42.576Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:34:42.581Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:34:42.588Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:35:26.945Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:35:26.948Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:35:26.951Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:35:26.955Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:35:31.104Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:35:33.880Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:35:33.901Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:35:33.905Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:35:33.909Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:37:00.040Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:37:42.815Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:37:48.325Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:37:48.331Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:37:48.338Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:37:48.341Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:39:02.400Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:39:07.629Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:39:07.635Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:39:07.643Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:39:07.647Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:40:31.752Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:40:36.894Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:40:36.900Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:40:36.907Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:40:36.910Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:44:28.116Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:44:31.602Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:44:31.608Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:44:31.614Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:44:31.617Z] ERROR: Illegal mix of collations (utf8mb4_general_ci,IMPLICIT) and (utf8mb4_unicode_ci,IMPLICIT) for operation '='
+[2026-04-30T08:46:01.856Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T08:46:04.735Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:46:04.767Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:47:25.017Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:47:25.282Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:47:35.074Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T08:47:35.246Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T13:47:52.966Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T14:02:16.102Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T14:02:19.225Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-04-30T14:02:24.400Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-04-30T14:02:26.743Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-04-30T14:02:26.919Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T14:02:27.227Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T14:34:31.036Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T14:34:31.097Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T15:23:38.931Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-04-30T15:23:42.697Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T15:23:45.162Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T19:05:42.456Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T19:05:42.477Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T19:06:50.911Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T19:06:51.073Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T19:07:11.206Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-04-30T19:07:11.525Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T08:02:58.435Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T08:02:58.470Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T08:11:31.668Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:15:38.520Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:15:41.507Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:15:43.331Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:15:49.934Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T08:15:51.096Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:17:17.978Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:17:23.626Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T08:17:27.444Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:18:16.650Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T08:18:18.343Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:19:50.232Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T08:19:55.766Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:21:20.527Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T08:21:42.052Z] ERROR: connect ETIMEDOUT 94.177.209.30:587
+[2026-05-01T08:21:56.214Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-01T08:22:26.274Z] POST /api/auth/change-temporary-password ORIGIN=http://localhost:5173
+[2026-05-01T08:22:26.806Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T08:22:26.827Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T08:51:43.216Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T08:51:48.194Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T08:51:48.221Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T08:52:16.540Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T08:52:18.910Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T08:52:18.937Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:14:31.234Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T09:16:22.924Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T09:16:30.211Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:16:30.477Z] ERROR: mapSessionStatus is not defined
+[2026-05-01T09:16:30.483Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:16:30.489Z] ERROR: mapSessionStatus is not defined
+[2026-05-01T09:16:36.915Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-01T09:16:42.483Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-01T09:16:42.635Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:16:42.641Z] ERROR: mapSessionStatus is not defined
+[2026-05-01T09:16:42.956Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:16:42.961Z] ERROR: mapSessionStatus is not defined
+[2026-05-01T09:16:56.515Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:16:56.522Z] ERROR: mapSessionStatus is not defined
+[2026-05-01T09:16:56.553Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:16:56.559Z] ERROR: mapSessionStatus is not defined
+[2026-05-01T09:17:33.640Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T09:17:39.813Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:17:39.849Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:33:44.075Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T09:33:44.387Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T20:38:02.772Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T20:38:02.791Z] GET /api/portal/me?email=andrea.tallaros7%40gmail.com ORIGIN=none
+[2026-05-01T21:05:02.876Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:05:36.806Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:05:37.760Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:06:30.427Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:06:40.428Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:06:48.148Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:06:49.125Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:22:57.125Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:23:15.077Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:26:12.829Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:28:32.210Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:28:37.811Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:28:42.385Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:28:43.304Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:29:17.264Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:29:19.625Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:29:52.262Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:30:42.975Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:30:48.513Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:31:35.322Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:31:37.371Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:31:46.487Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:31:47.667Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:32:01.199Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:32:03.327Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:32:51.406Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:32:53.473Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:34:03.036Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:34:05.255Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:35:31.978Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:35:34.464Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:37:48.408Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:37:51.095Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:38:34.253Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:38:37.553Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:39:30.326Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:39:32.433Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:40:27.719Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:40:29.960Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:44:46.513Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:44:51.999Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:48:15.591Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:48:18.279Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:51:35.142Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:51:48.501Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:52:11.716Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-01T21:52:30.464Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-01T21:52:33.123Z] ERROR: connect ETIMEDOUT 94.177.209.30:587
+[2026-05-01T21:52:58.668Z] POST /api/auth/change-temporary-password ORIGIN=http://localhost:5173
+[2026-05-01T21:52:59.465Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:52:59.508Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:57:14.195Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-01T21:57:17.462Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:57:17.515Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:57:29.736Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-01T21:57:29.850Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:57:29.861Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:57:55.604Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-01T21:57:55.872Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:57:56.029Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:58:48.089Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:58:48.241Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-01T21:58:57.466Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-01T21:58:57.583Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-01T21:58:57.591Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:21:28.993Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T13:21:33.814Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:21:33.820Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:21:37.582Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:21:49.841Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:21:51.320Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:21:52.805Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:22:00.313Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:22:04.565Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:22:07.529Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:22:18.219Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:22:21.203Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:23:21.061Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:23:35.188Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:23:38.269Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:23:38.630Z] ERROR: jwt is not defined
+[2026-05-02T13:23:41.235Z] GET /api/auth/login ORIGIN=none
+[2026-05-02T13:23:48.845Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:23:48.937Z] ERROR: jwt is not defined
+[2026-05-02T13:23:52.529Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:23:54.982Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:23:55.069Z] ERROR: jwt is not defined
+[2026-05-02T13:25:05.648Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T13:25:07.578Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:25:07.676Z] ERROR: secretOrPrivateKey must have a value
+[2026-05-02T13:26:25.317Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T13:26:27.167Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:26:27.432Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-02T13:26:27.671Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-02T13:26:33.039Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-02T13:26:33.042Z] GET /api/portal/me?email=krians7%40gmail.com ORIGIN=none
+[2026-05-02T13:27:03.291Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:27:05.421Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:27:05.843Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:27:06.094Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:34:45.150Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T13:34:50.437Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:34:50.443Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:35:04.210Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:35:04.819Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:35:04.822Z] GET /api/portal/me?email=krians6%40gmail.com ORIGIN=none
+[2026-05-02T13:43:28.079Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T13:43:28.084Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T13:45:54.801Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T13:51:05.793Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T13:51:24.090Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T13:51:35.532Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T14:03:10.147Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T14:03:22.251Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T14:03:22.639Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T14:03:23.009Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T14:05:40.708Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T14:07:19.830Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T14:07:22.874Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T14:07:22.912Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T16:52:12.103Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T16:52:12.114Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T16:53:54.144Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T16:53:58.606Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T16:53:58.647Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:29:50.119Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T18:30:00.001Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:30:22.333Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-02T18:31:10.347Z] ERROR: connect ETIMEDOUT 94.177.209.30:587
+[2026-05-02T18:31:10.354Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:10.355Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:10.357Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:10.358Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:10.359Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:10.361Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.000Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.002Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.113Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.114Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.115Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.115Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.428Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.428Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.650Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:11.650Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-02T18:31:29.575Z] POST /api/auth/change-temporary-password ORIGIN=http://localhost:5173
+[2026-05-02T18:31:30.115Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:31:30.126Z] ERROR: getPortalDataByAccountGroupId is not a function
+[2026-05-02T18:31:30.129Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:31:30.138Z] ERROR: getPortalDataByAccountGroupId is not a function
+[2026-05-02T18:32:53.753Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T18:32:59.301Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:32:59.623Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:33:28.799Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:33:28.810Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:44:00.674Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:48:03.682Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:48:03.692Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:48:06.031Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:48:06.043Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:49:50.679Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T18:49:50.688Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T19:51:32.393Z] GET /api/portal/invoices/export ORIGIN=none
+[2026-05-02T19:58:38.513Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T20:39:04.071Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-02T20:39:06.292Z] GET /api/portal/invoices/export ORIGIN=none
+[2026-05-02T20:39:14.395Z] GET /api/portal/invoices/export ORIGIN=none
+[2026-05-02T20:39:32.254Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:39:32.509Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:39:41.265Z] PUT /api/portal/profile ORIGIN=http://localhost:5173
+[2026-05-02T20:40:05.850Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:40:05.861Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:42:49.106Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:42:49.115Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:42:50.745Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:42:50.755Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:42:52.400Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T20:42:52.409Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T21:52:48.528Z] PUT /api/portal/profile ORIGIN=http://localhost:5173
+[2026-05-02T21:52:59.703Z] PUT /api/portal/profile ORIGIN=http://localhost:5173
+[2026-05-02T21:53:01.491Z] GET /api/portal/me ORIGIN=none
+[2026-05-02T21:53:01.639Z] GET /api/portal/me ORIGIN=none
+[2026-05-03T12:03:02.258Z] GET /api/portal/me ORIGIN=none
+[2026-05-03T12:03:02.278Z] GET /api/portal/me ORIGIN=none
+[2026-05-03T12:04:24.669Z] GET /api/portal/me ORIGIN=none
+[2026-05-03T12:04:24.924Z] GET /api/portal/me ORIGIN=none
+[2026-05-03T12:04:30.404Z] PUT /api/portal/profile ORIGIN=http://localhost:5173
+[2026-05-03T12:04:32.911Z] GET /api/portal/me ORIGIN=none
+[2026-05-03T12:04:32.924Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T11:22:14.084Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T11:22:22.541Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T11:22:22.578Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T11:22:37.732Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-07T11:22:45.127Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-07T11:22:47.238Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-07T11:22:54.875Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-07T11:22:56.233Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-07T11:29:19.311Z] POST /api/registration/request ORIGIN=http://localhost:5173
+[2026-05-07T11:29:34.423Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-07T11:29:40.649Z] ERROR: connect ETIMEDOUT 94.177.209.30:587
+[2026-05-07T11:29:50.295Z] POST /api/auth/change-temporary-password ORIGIN=http://localhost:5173
+[2026-05-07T11:29:50.765Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T11:29:50.798Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T13:37:47.474Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T13:38:16.278Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T13:38:16.573Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:12:12.649Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T14:12:15.599Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:12:15.621Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:12:17.840Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:12:17.989Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:13:54.914Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:13:54.929Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:21:24.793Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:21:24.815Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:25:24.065Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T14:25:28.079Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:25:28.111Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:27:57.382Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T14:27:59.562Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:27:59.586Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:28:59.235Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T14:29:00.787Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:29:00.826Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:29:42.016Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T14:29:48.318Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:29:48.354Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:42:52.187Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:42:52.225Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:43:17.811Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T14:43:23.725Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T14:43:23.769Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T19:28:41.480Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T19:28:47.496Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T19:28:47.541Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T19:29:06.719Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T19:29:09.079Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T19:29:09.104Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T19:49:07.923Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T19:49:10.660Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T19:49:10.707Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T19:53:23.384Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T19:53:27.158Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T19:53:27.211Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:11:49.939Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T23:11:52.275Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:11:52.331Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:11:53.758Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:12:13.792Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:12:41.427Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:13:34.188Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T23:13:35.407Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:13:41.602Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:14:21.492Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T23:14:26.141Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:14:26.810Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:14:27.388Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:15:33.824Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T23:15:36.717Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:16:42.417Z] GET /api/debug/storage ORIGIN=none
+[2026-05-07T23:17:49.934Z] GET /api/debug/storage ORIGIN=none
+[2026-05-07T23:18:45.177Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T23:18:50.112Z] GET /api/debug/storage ORIGIN=none
+[2026-05-07T23:19:09.254Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-07T23:22:29.823Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:22:29.866Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:22:54.367Z] GET /api/portal/invoices/export ORIGIN=none
+[2026-05-07T23:38:21.266Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T23:38:28.040Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:38:28.080Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:38:41.270Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:38:41.284Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:51:14.588Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T23:51:16.112Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:51:16.277Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:53:29.810Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-07T23:53:34.358Z] GET /api/portal/me ORIGIN=none
+[2026-05-07T23:53:34.692Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:01:13.601Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-08T00:01:20.303Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:01:20.318Z] ERROR: getLatestInvoicesByUtenzeIds is not defined
+[2026-05-08T00:01:20.323Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:01:20.331Z] ERROR: getLatestInvoicesByUtenzeIds is not defined
+[2026-05-08T00:02:56.108Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-08T00:02:59.055Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:02:59.099Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:09:44.635Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-08T00:09:48.446Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:09:48.463Z] ERROR: getLatestInvoicesByUtenzeIds is not defined
+[2026-05-08T00:09:48.615Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:09:48.623Z] ERROR: getLatestInvoicesByUtenzeIds is not defined
+[2026-05-08T00:10:21.885Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-08T00:10:24.453Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:10:24.506Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:10:28.972Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:10:28.992Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:20:52.168Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-08T00:20:53.993Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:20:54.053Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:21:41.876Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-08T00:21:45.058Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:21:45.119Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:23:20.383Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-08T00:23:23.119Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T00:23:23.165Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T07:46:46.114Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T07:46:46.135Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T07:46:53.868Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T07:46:53.886Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T07:47:18.624Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T07:47:18.643Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T07:53:27.292Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-08T07:53:31.085Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T07:53:31.138Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T12:38:07.807Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T12:38:07.825Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T22:19:09.958Z] GET /api/portal/me ORIGIN=none
+[2026-05-08T22:19:10.031Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T07:53:49.834Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T07:53:49.871Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:03:15.701Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:03:15.746Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:51:38.109Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:51:38.443Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:51:39.624Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:51:39.782Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:55:40.016Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:55:40.272Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:55:42.224Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T11:55:42.377Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T22:30:44.463Z] GET /api/portal/me ORIGIN=none
+[2026-05-09T22:30:44.554Z] GET /api/portal/me ORIGIN=none
+[2026-05-13T13:26:55.983Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-13T13:27:04.178Z] GET /api/portal/me ORIGIN=none
+[2026-05-13T13:27:04.265Z] GET /api/portal/me ORIGIN=none
+[2026-05-13T13:27:52.540Z] POST /api/portal/chat ORIGIN=http://localhost:5173
+[2026-05-13T13:27:53.753Z] ERROR: 400 The requested model 'gpt-5.5-mini' does not exist.
+[2026-05-17T10:24:36.658Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:25:14.583Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:25:25.803Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:25:25.813Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:25:28.243Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:25:28.246Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:25:42.382Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-17T10:25:52.339Z] POST /api/auth/login ORIGIN=http://localhost:5173
+[2026-05-17T10:25:52.780Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:25:53.046Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:26:04.538Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_de247b91-d95b-4a99-bb94-d6cdd24df637.pdf ORIGIN=none
+[2026-05-17T10:26:33.786Z] POST /api/portal/chat ORIGIN=http://localhost:5173
+[2026-05-17T10:26:36.018Z] ERROR: 400 The requested model 'gpt-5.5-mini' does not exist.
+[2026-05-17T10:26:44.552Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_aef3d2a0-885d-474a-9de7-f9c538e0fbec.pdf ORIGIN=none
+[2026-05-17T10:27:18.886Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_de247b91-d95b-4a99-bb94-d6cdd24df637.pdf ORIGIN=none
+[2026-05-17T10:27:37.667Z] GET /storage/ripartizioni/2026-01-12/ripartizione_utenza_de247b91-d95b-4a99-bb94-d6cdd24df637.pdf ORIGIN=none
+[2026-05-17T10:33:32.320Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:33:39.085Z] POST /api/portal/chat ORIGIN=http://localhost:5173
+[2026-05-17T10:33:41.369Z] ERROR: 404 Your organization must be verified to use the model `gpt-5-mini`. Please go to: https://platform.openai.com/settings/organization/general and click on Verify Organization. If you just verified, it can take up to 15 minutes for access to propagate.
+[2026-05-17T10:34:55.841Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:35:01.569Z] POST /api/portal/chat ORIGIN=http://localhost:5173
+[2026-05-17T10:38:32.607Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:38:37.821Z] POST /api/portal/chat ORIGIN=http://localhost:5173
+[2026-05-17T10:41:09.900Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:41:11.265Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:41:11.308Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:41:20.582Z] POST /api/portal/chat ORIGIN=http://localhost:5173
+[2026-05-17T10:41:37.004Z] POST /api/portal/chat ORIGIN=http://localhost:5173
+[2026-05-17T10:42:33.497Z] POST /api/portal/chat ORIGIN=http://localhost:5173
+[2026-05-17T10:50:10.634Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:50:14.718Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:50:14.768Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:55:06.257Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:55:07.765Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:55:07.817Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:58:25.738Z] BOOTING SERVER: C:\Users\Andreas\Documents\Codex\idromardi-client-platform\backend\server.js
+[2026-05-17T10:58:30.873Z] GET /api/portal/me ORIGIN=none
+[2026-05-17T10:58:31.156Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:33:10.087Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:33:10.192Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:42:06.541Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:42:06.566Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:46:39.795Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:46:39.814Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:46:48.248Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:46:48.265Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:46:51.168Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:46:51.186Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:46:52.505Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:46:52.523Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:47:05.504Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:47:05.820Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:47:07.209Z] GET /api/portal/me ORIGIN=none
+[2026-05-18T07:47:07.225Z] GET /api/portal/me ORIGIN=none

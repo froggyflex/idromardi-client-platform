@@ -12,6 +12,7 @@ async function requestRegistration(req, res, next) {
 
     const matchedUser = await findMatchingUser(payload);
 
+    console.log(`Matched user: ${matchedUser ? matchedUser.id_auto : 'none'}`);
     if (!matchedUser) {
       return res.status(404).json({
         message:

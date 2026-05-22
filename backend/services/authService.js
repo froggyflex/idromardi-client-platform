@@ -1,53 +1,80 @@
 const crypto = require('crypto');
 const pool = require('../config/db');
 const { hashPassword, verifyPassword } = require('../utils/passwordHash');
+const jwt = require("jsonwebtoken");
+function createSession(user) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET non definito.");
+  }
 
-function createSession(email, mustChangePassword) {
+  const token = jwt.sign(
+    {
+      portalUserId: user.portalUserId,
+      accountGroupId: user.accountGroupId,
+      idAuto: user.idAuto,
+      email: user.email,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+
   return {
-    token: crypto.randomUUID(),
-    email,
-    mustChangePassword: Boolean(mustChangePassword),
+    token,
+    email: user.email,
+    mustChangePassword: Boolean(user.mustChangePassword),
   };
 }
 
 async function authenticatePortalUser(email, password) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+
   const [rows] = await pool.execute(
     `
       SELECT
+        id,
+        account_group_id,
+        id_auto,
+        id_user,
+        id_Condominio,
         email,
         password_hash,
         password_salt,
         must_change_password,
         temp_password_expires_at
       FROM activated_portal_users
-      WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
+      WHERE email COLLATE utf8mb4_unicode_ci
+          = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci
         AND status = 'ACTIVE'
         AND password_hash IS NOT NULL
         AND password_salt IS NOT NULL
       ORDER BY activated_at DESC
     `,
-    [email],
+    [normalizedEmail]
   );
 
-  if (rows.length === 0) {
-    return null;
+  if (!rows.length) return null;
+
+  let matchedUser = null;
+
+  for (const row of rows) {
+    const isValidPassword = verifyPassword(
+      password,
+      row.password_salt,
+      row.password_hash
+    );
+
+    if (isValidPassword) {
+      matchedUser = row;
+      break;
+    }
   }
 
-  const primaryUser = rows[0];
-  const isValidPassword = verifyPassword(
-    password,
-    primaryUser.password_salt,
-    primaryUser.password_hash,
-  );
-
-  if (!isValidPassword) {
-    return null;
-  }
+  if (!matchedUser) return null;
 
   if (
-    primaryUser.must_change_password &&
-    primaryUser.temp_password_expires_at &&
-    new Date(primaryUser.temp_password_expires_at) < new Date()
+    matchedUser.must_change_password &&
+    matchedUser.temp_password_expires_at &&
+    new Date(matchedUser.temp_password_expires_at) < new Date()
   ) {
     return null;
   }
@@ -56,13 +83,18 @@ async function authenticatePortalUser(email, password) {
     `
       UPDATE activated_portal_users
       SET last_login_at = NOW()
-      WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
-        AND status = 'ACTIVE'
+      WHERE account_group_id = ?
     `,
-    [email],
+    [matchedUser.account_group_id]
   );
 
-  return createSession(email, primaryUser.must_change_password);
+  return createSession({
+    portalUserId: matchedUser.id,
+    accountGroupId: matchedUser.account_group_id,
+    idAuto: matchedUser.id_auto,
+    email: matchedUser.email,
+    mustChangePassword: matchedUser.must_change_password,
+  });
 }
 
 async function updateTemporaryPassword(email, currentPassword, newPassword) {
@@ -71,6 +103,8 @@ async function updateTemporaryPassword(email, currentPassword, newPassword) {
   if (!session || !session.mustChangePassword) {
     return null;
   }
+
+  const decoded = jwt.verify(session.token, process.env.JWT_SECRET);
 
   const { hash, salt } = hashPassword(newPassword);
 
@@ -82,16 +116,22 @@ async function updateTemporaryPassword(email, currentPassword, newPassword) {
         password_salt = ?,
         must_change_password = 0,
         temp_password_expires_at = NULL,
-        password_changed_at = NOW()
-      WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
+        password_changed_at = NOW(),
+        updated_at = NOW()
+      WHERE account_group_id = ?
         AND status = 'ACTIVE'
     `,
-    [hash, salt, email],
+    [hash, salt, decoded.accountGroupId]
   );
 
-  return createSession(email, false);
+  return createSession({
+    portalUserId: decoded.portalUserId,
+    accountGroupId: decoded.accountGroupId,
+    idAuto: decoded.idAuto,
+    email: decoded.email,
+    mustChangePassword: false,
+  });
 }
-
 module.exports = {
   authenticatePortalUser,
   updateTemporaryPassword,

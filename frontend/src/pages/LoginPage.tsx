@@ -18,17 +18,23 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError('');
+    setError("");
 
     try {
       const session = await login(email, password);
+ 
       onLogin(session);
-      navigate(session.mustChangePassword ? '/cambia-password' : '/portal');
+
+      navigate(session.mustChangePassword ? "/cambia-password" : "/portal");
     } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : 'Accesso non riuscito.');
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Accesso non riuscito."
+      );
     }
   }
-
+  
   return (
     <main className="login-page">
       <div className="login-shell">

@@ -134,11 +134,16 @@ export function RegisterPage() {
               Numero utenza
               <input
                 inputMode="text"
-                maxLength={12}
-                pattern="[0-9]{8}(/[0-9]+)?"
                 value={form.numeroUtenza}
-                onChange={(event) => updateField('numeroUtenza', event.target.value)}
+                onChange={(event) =>
+                  updateField(
+                    "numeroUtenza",
+                    event.target.value.replace(/\s+/g, "")
+                  )
+                }
                 placeholder="40010001/2"
+                pattern="^400[0-9]+000[0-9]+(/[0-9]+)*$"
+                title="Formato richiesto: 400[condominio]000[utenza], es. 40010001 oppure 40010001/2"
                 required
               />
             </label>

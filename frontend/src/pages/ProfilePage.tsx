@@ -1,55 +1,87 @@
-import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
-import { Mail, MapPin, Phone, Save, User } from 'lucide-react';
-import { getCurrentPortalData, updatePortalProfile } from '../services/api';
-import type { PortalData, PortalProfileUpdate } from '../types/portal';
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { Mail, MapPin, Phone, Save, User } from "lucide-react";
+import { getCurrentPortalUser, updatePortalProfile } from "../services/api";
+import type { PortalData, PortalProfileUpdate } from "../types/portal";
 
 export function ProfilePage() {
   const [data, setData] = useState<PortalData | null>(null);
   const [form, setForm] = useState<PortalProfileUpdate>({
-    phone: '',
-    mobile: '',
-    fiscalCode: '',
+    phone: "",
+    mobile: "",
+    fiscalCode: "",
   });
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
-  const email = window.localStorage.getItem('idromardi_email') || '';
+  const [status, setStatus] = useState<"idle" | "loading" | "submitting" | "success" | "error">("loading");
+  const [message, setMessage] = useState("");
+
+  const token = window.localStorage.getItem("portalToken") || "";
 
   useEffect(() => {
-    void getCurrentPortalData(email).then((portalData) => {
-      setData(portalData);
-      setForm({
-        phone: portalData.customer.phone || '',
-        mobile: portalData.customer.mobile || '',
-        fiscalCode: portalData.customer.fiscalCode || '',
+    if (!token) {
+      setStatus("error");
+      setMessage("Sessione mancante. Effettua di nuovo l'accesso.");
+      return;
+    }
+
+    void getCurrentPortalUser(token)
+      .then((portalData) => {
+        setData(portalData);
+        setForm({
+          phone: portalData.customer.phone || "",
+          mobile: portalData.customer.mobile || "",
+          fiscalCode: portalData.customer.fiscalCode || "",
+        });
+        setStatus("idle");
+      })
+      .catch((caughtError: unknown) => {
+        setStatus("error");
+        setMessage(
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Caricamento profilo non riuscito."
+        );
       });
-    });
-  }, [email]);
+  }, [token]);
 
   function updateField(field: keyof PortalProfileUpdate, value: string) {
     setForm((currentForm) => ({ ...currentForm, [field]: value }));
-    setStatus('idle');
-    setMessage('');
+    setStatus("idle");
+    setMessage("");
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus('submitting');
-    setMessage('');
+
+    if (!token) {
+      setStatus("error");
+      setMessage("Sessione mancante. Effettua di nuovo l'accesso.");
+      return;
+    }
+
+    setStatus("submitting");
+    setMessage("");
 
     try {
-      const nextData = await updatePortalProfile(email, form);
+      const nextData = await updatePortalProfile(token, form);
       setData(nextData);
-      setStatus('success');
-      setMessage('Profilo aggiornato correttamente.');
-    } catch (caughtError) {
-      setStatus('error');
-      setMessage(caughtError instanceof Error ? caughtError.message : 'Aggiornamento non riuscito.');
+      setStatus("success");
+      setMessage("Profilo aggiornato correttamente.");
+    } catch (caughtError: unknown) {
+      setStatus("error");
+      setMessage(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Aggiornamento non riuscito."
+      );
     }
   }
 
   if (!data) {
-    return <main className="dashboard loading-state">Caricamento profilo...</main>;
+    return (
+      <main className="dashboard loading-state">
+        {message || "Caricamento profilo..."}
+      </main>
+    );
   }
 
   const { customer } = data;
@@ -73,23 +105,32 @@ export function ProfilePage() {
             </div>
             <span className="status-pill">{customer.status}</span>
           </div>
+
           <div className="profile-list">
             <div className="profile-item">
-              <span><User size={17} /></span>
+              <span>
+                <User size={17} />
+              </span>
               <div>
                 <small>Intestatario</small>
                 <strong>{customer.name}</strong>
               </div>
             </div>
+
             <div className="profile-item">
-              <span><Mail size={17} /></span>
+              <span>
+                <Mail size={17} />
+              </span>
               <div>
                 <small>Email accesso</small>
                 <strong>{customer.email}</strong>
               </div>
             </div>
+
             <div className="profile-item">
-              <span><MapPin size={17} /></span>
+              <span>
+                <MapPin size={17} />
+              </span>
               <div>
                 <small>Fornitura</small>
                 <strong>{customer.meterNo}</strong>
@@ -106,37 +147,50 @@ export function ProfilePage() {
             </div>
             <Phone size={20} />
           </div>
+
           <form className="profile-form" onSubmit={handleSubmit}>
             <label>
               Telefono
               <input
                 value={form.phone}
-                onChange={(event) => updateField('phone', event.target.value)}
+                onChange={(event) => updateField("phone", event.target.value)}
                 placeholder="+39 ..."
               />
             </label>
+
             <label>
               Cellulare
               <input
                 value={form.mobile}
-                onChange={(event) => updateField('mobile', event.target.value)}
+                onChange={(event) => updateField("mobile", event.target.value)}
                 placeholder="+39 ..."
               />
             </label>
+
             <label>
               Codice fiscale
               <input
                 value={form.fiscalCode}
-                onChange={(event) => updateField('fiscalCode', event.target.value)}
+                onChange={(event) =>
+                  updateField("fiscalCode", event.target.value.toUpperCase())
+                }
                 placeholder="Codice fiscale"
               />
             </label>
+
             {message && (
-              <p className={status === 'success' ? 'form-success' : 'form-error'}>{message}</p>
+              <p className={status === "success" ? "form-success" : "form-error"}>
+                {message}
+              </p>
             )}
-            <button className="primary-button" type="submit" disabled={status === 'submitting'}>
+
+            <button
+              className="primary-button"
+              type="submit"
+              disabled={status === "submitting"}
+            >
               <Save size={18} />
-              {status === 'submitting' ? 'Salvataggio...' : 'Salva modifiche'}
+              {status === "submitting" ? "Salvataggio..." : "Salva modifiche"}
             </button>
           </form>
         </section>

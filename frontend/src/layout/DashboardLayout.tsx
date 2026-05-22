@@ -18,7 +18,7 @@ export function DashboardLayout({ onLogout }: DashboardLayoutProps) {
             <Home size={18} />
             Riepilogo
           </a>
-          <a href="/portal#consumption">
+          {/* <a href="/portal#consumption">
             <Gauge size={18} />
             Consumi
           </a>
@@ -29,7 +29,7 @@ export function DashboardLayout({ onLogout }: DashboardLayoutProps) {
           <a href="/portal#payments">
             <CreditCard size={18} />
             Pagamenti
-          </a>
+          </a> */}
           <NavLink to="/portal/profilo">
             <User size={18} />
             Profilo

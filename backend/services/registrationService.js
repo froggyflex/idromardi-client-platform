@@ -2,22 +2,38 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const pool = require('../config/db');
-const { hashPassword } = require('../utils/passwordHash');
+const { hashPassword } = require("../utils/passwordHash");
 const { sendEmail } = require('../utils/emailSender');
 
 function parseNumeroUtenza(numeroUtenza) {
   const prefix = process.env.NUMERO_UTENZA_PREFIX || '400';
-  const userDigits = Number(process.env.NUMERO_UTENZA_USER_DIGITS || 4);
-  const [baseNumber, extraInterno] = numeroUtenza.split('/');
-  const baseWithoutPrefix = baseNumber.startsWith(prefix)
-    ? baseNumber.slice(prefix.length)
-    : baseNumber;
-  const condominioPart = baseWithoutPrefix.slice(0, -userDigits);
-  const userPart = baseWithoutPrefix.slice(-userDigits);
+
+  if (!numeroUtenza.startsWith(prefix)) {
+    throw new Error("Prefisso numero utenza non valido");
+  }
+
+  const [baseNumber, ...extraParts] = numeroUtenza.split('/');
+
+  const baseWithoutPrefix = baseNumber.slice(prefix.length);
+
+  const separator = '000';
+  const separatorIndex = baseWithoutPrefix.indexOf(separator);
+
+  if (separatorIndex === -1) {
+    throw new Error("Formato numero utenza non valido (manca separatore 000)");
+  }
+
+  const condominioPart = baseWithoutPrefix.slice(0, separatorIndex);
+  const userPart = baseWithoutPrefix.slice(separatorIndex + separator.length);
+
   const userIds = [Number(userPart)];
 
-  if (extraInterno) {
-    userIds.push(Number(extraInterno));
+ 
+
+  for (const part of extraParts) {
+    if (part) {
+      userIds.push(Number(part));
+    }
   }
 
   return {
@@ -26,9 +42,39 @@ function parseNumeroUtenza(numeroUtenza) {
   };
 }
 
+async function assertEmailNotAlreadyUsed(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+
+  const [rows] = await pool.execute(
+    `
+      SELECT id
+      FROM activated_portal_users
+      WHERE email COLLATE utf8mb4_unicode_ci
+          = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci
+        AND status = 'ACTIVE'
+      LIMIT 1
+    `,
+    [normalizedEmail]
+  );
+
+  if (rows.length > 0) {
+    throw new Error("Questa email è già associata a un account portale.");
+  }
+}
+
 async function findMatchingUser(payload) {
   const { idCondominio, userIds } = parseNumeroUtenza(payload.numeroUtenza);
-  const userPlaceholders = userIds.map(() => '?').join(', ');
+
+  console.log(`Finding users for condominio ${idCondominio} and userIds ${userIds.join(', ')}`);
+
+  if (!userIds.length) return null;
+
+  const userPlaceholders = userIds.map(() => "?").join(", ");
+  
+  console.log(`User placeholders for query: ${userPlaceholders}`);
+
+  const nome = String(payload.nome || "").trim();
+  const cognome = String(payload.cognome || "").trim();
 
   const [rows] = await pool.execute(
     `
@@ -42,22 +88,33 @@ async function findMatchingUser(payload) {
         u.Stato AS Status
       FROM utenze_v2 u
       INNER JOIN condomini_v2 c
-        ON c.id = u.condominio_id
+        ON c.id COLLATE utf8mb4_unicode_ci
+         = u.condominio_id COLLATE utf8mb4_unicode_ci
       WHERE c.codice = ?
         AND u.id_user IN (${userPlaceholders})
-        AND LOWER(TRIM(u.Nome)) = LOWER(TRIM(?))
+        AND (
+          u.Nome IS NULL
+          OR TRIM(u.Nome) = ''
+          OR LOWER(TRIM(u.Nome)) = LOWER(TRIM(?))
+        )
         AND LOWER(TRIM(u.Cognome)) = LOWER(TRIM(?))
         AND u.Stato = 'ATTIVA'
     `,
-    [idCondominio, ...userIds, payload.nome, payload.cognome],
+    [idCondominio, ...userIds, nome, cognome]
   );
 
-  const matchedUserIds = new Set(rows.map((row) => Number(row.id_user)));
-  const allUsersMatched = userIds.every((idUser) => matchedUserIds.has(idUser));
-
-  if (!allUsersMatched) {
-    return null;
+  if (rows.length !== userIds.length) {
+    console.log("Some requested utenze did not match.");
+     
   }
+  
+  const matchedUserIds = new Set(rows.map((row) => Number(row.id_user)));
+  const allUsersMatched = userIds.every((idUser) => matchedUserIds.has(Number(idUser)));
+
+  console.log(`Matched user IDs: ${[...matchedUserIds].join(', ')}`);
+  console.log(`All users matched: ${allUsersMatched}`);
+
+  if (!allUsersMatched) return null;
 
   return {
     idCondominio,
@@ -68,12 +125,20 @@ async function findMatchingUser(payload) {
 }
 
 async function sendConfirmationCode(match, email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+
+  await assertEmailNotAlreadyUsed(normalizedEmail);
+
   const confirmationCode = crypto.randomInt(100000, 999999).toString();
-  const codeHash = crypto.createHash('sha256').update(confirmationCode).digest('hex');
+  console.log(`Generated confirmation code for ${normalizedEmail}: ${confirmationCode}`);
+
+  const codeHash = crypto.createHash("sha256").update(confirmationCode).digest("hex");
   const password = hashPassword(confirmationCode);
   const requestId = crypto.randomUUID();
+  const accountGroupId = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
   const primaryUser = match.primaryUser;
+
   const connection = await pool.getConnection();
 
   try {
@@ -83,11 +148,12 @@ async function sendConfirmationCode(match, email) {
       `
         UPDATE registration_confirmation_codes
         SET consumed_at = NOW()
-        WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
+        WHERE email COLLATE utf8mb4_unicode_ci
+            = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci
           AND id_Condominio = ?
           AND consumed_at IS NULL
       `,
-      [email, match.idCondominio],
+      [normalizedEmail, match.idCondominio]
     );
 
     await connection.execute(
@@ -114,22 +180,10 @@ async function sendConfirmationCode(match, email) {
         JSON.stringify(match.users.map((user) => user.Interno)),
         primaryUser.Nome,
         primaryUser.Cognome,
-        email,
+        normalizedEmail,
         codeHash,
         expiresAt,
-      ],
-    );
-
-    await connection.execute(
-      `
-        UPDATE registration_confirmation_codes
-        SET consumed_at = NOW()
-        WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
-          AND id_Condominio = ?
-          AND request_id <> ?
-          AND consumed_at IS NULL
-      `,
-      [email, match.idCondominio, requestId],
+      ]
     );
 
     for (const user of match.users) {
@@ -137,6 +191,7 @@ async function sendConfirmationCode(match, email) {
         `
           INSERT INTO activated_portal_users
             (
+              account_group_id,
               id_Condominio,
               id_user,
               id_auto,
@@ -150,26 +205,19 @@ async function sendConfirmationCode(match, email) {
               activated_at,
               created_at
             )
-          VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, 'ACTIVE', NOW(), NOW())
-          ON DUPLICATE KEY UPDATE
-            email = VALUES(email),
-            password_hash = VALUES(password_hash),
-            password_salt = VALUES(password_salt),
-            must_change_password = 1,
-            temp_password_expires_at = VALUES(temp_password_expires_at),
-            status = 'ACTIVE',
-            updated_at = NOW()
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 'ACTIVE', NOW(), NOW())
         `,
         [
+          accountGroupId,
           match.idCondominio,
           user.id_user,
           user.id_auto,
           user.Interno,
-          email,
+          normalizedEmail,
           password.hash,
           password.salt,
           expiresAt,
-        ],
+        ]
       );
     }
 
@@ -181,11 +229,11 @@ async function sendConfirmationCode(match, email) {
     connection.release();
   }
 
-  const templatePath = path.join(__dirname, '../templates/email/registration-code.html');
-  let html = fs.readFileSync(templatePath, 'utf8');
-  html = html.replace('{{CODE}}', confirmationCode);
+  const templatePath = path.join(__dirname, "../templates/email/registration-code.html");
+  let html = fs.readFileSync(templatePath, "utf8");
+  html = html.replace("{{CODE}}", confirmationCode);
 
-  await sendEmail(email, 'Codice di accesso Idromardi', html);
+  await sendEmail(normalizedEmail, "Codice di accesso Idromardi", html);
 
   return { requestId, expiresAt: expiresAt.toISOString() };
 }
@@ -196,6 +244,8 @@ async function resendConfirmationCode(requestId) {
       SELECT
         id,
         email,
+        id_Condominio,
+        id_users_json,
         expires_at,
         consumed_at,
         resend_count
@@ -256,11 +306,12 @@ async function resendConfirmationCode(requestId) {
           temp_password_expires_at = ?,
           status = 'ACTIVE',
           updated_at = NOW()
-        WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))
+        WHERE email COLLATE utf8mb4_unicode_ci
+            = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci
+          AND status = 'ACTIVE'
       `,
-      [password.hash, password.salt, expiresAt, record.email],
+      [password.hash, password.salt, expiresAt, record.email]
     );
-
     await connection.commit();
   } catch (error) {
     await connection.rollback();

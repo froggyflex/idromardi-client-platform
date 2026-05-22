@@ -4,7 +4,7 @@ require('./env');
 const transporterConfig = {
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT || 587),
-  secure: process.env.SMTP_SECURE === 'true',
+  secure: process.env.SMTP_SECURE === 'false',
 };
 
 if (process.env.SMTP_USER && process.env.SMTP_PASS) {

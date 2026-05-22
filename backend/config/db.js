@@ -19,6 +19,8 @@ const pool = mysql.createPool({
   queueLimit: 0,
   connectTimeout: Number(process.env.DB_CONNECT_TIMEOUT_MS || 8000),
   dateStrings: true,
+  charset: "utf8mb4"
 });
+pool.query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
 
 module.exports = pool;

@@ -1,65 +1,28 @@
 import type { PortalData, PortalProfileUpdate } from '../types/portal';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = '/api'; //import.meta.env.VITE_API_BASE_URL || 
 
-const portalData: PortalData = {
-  customer: {
-    name: 'Giulia Bianchi',
-    firstName: 'Giulia',
-    lastName: 'Bianchi',
-    email: 'cliente@email.com',
-    phone: '+39 02 8844 1180',
-    mobile: '+39 347 000 0000',
-    fiscalCode: '',
-    accountNo: 'IDR-2026-1847',
-    meterNo: 'CONT-59A-0421',
-    address: 'Via San Marco 18, 20121 Milano',
-    tariff: 'Utenza domestica con ripartizione consumi',
-    status: 'Attivo',
-  },
-  invoices: [
-    {
-      id: 'FT-2026-004',
-      period: 'Marzo 2026',
-      issued: '2 Apr 2026',
-      due: '24 Apr 2026',
-      consumption: 18.6,
-      amount: 42.8,
-      status: 'In scadenza',
+ export async function askPortalAssistant(
+  token: string,
+  message: string
+): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/portal/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    {
-      id: 'FT-2026-003',
-      period: 'Febbraio 2026',
-      issued: '2 Mar 2026',
-      due: '24 Mar 2026',
-      consumption: 16.9,
-      amount: 38.4,
-      status: 'Pagata',
-    },
-    {
-      id: 'FT-2026-002',
-      period: 'Gennaio 2026',
-      issued: '2 Feb 2026',
-      due: '24 Feb 2026',
-      consumption: 15.2,
-      amount: 34.7,
-      status: 'Pagata',
-    },
-  ],
-  readings: [
-    { month: 'Ott', value: 13.8 },
-    { month: 'Nov', value: 14.6 },
-    { month: 'Dic', value: 17.4 },
-    { month: 'Gen', value: 15.2 },
-    { month: 'Feb', value: 16.9 },
-    { month: 'Mar', value: 18.6 },
-  ],
-  serviceNotes: [
-    'Lettura contatore programmata per il 28 Apr 2026',
-    'Verifica pressione zona Milano Centro il 21 Apr, 02:00-05:00',
-    'Metodo di pagamento e dati contratto verificati',
-  ],
-};
+    body: JSON.stringify({ message }),
+  });
+
+  const data = (await response.json()) as { answer?: string; message?: string };
+
+  if (!response.ok || !data.answer) {
+    throw new Error(data.message || "Risposta assistente non disponibile.");
+  }
+
+  return data.answer;
+}
 
 export type LoginResponse = {
   token: string;
@@ -89,6 +52,29 @@ export async function login(email: string, password: string): Promise<LoginRespo
   };
 }
 
+export async function exportInvoices(token: string) {
+  const response = await fetch(`${API_BASE_URL}/portal/invoices/export`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Errore esportazione.");
+  }
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "fatture.xlsx";
+  a.click();
+
+  window.URL.revokeObjectURL(url);
+}
+
 export async function changeTemporaryPassword(
   email: string,
   currentPassword: string,
@@ -115,39 +101,45 @@ export async function changeTemporaryPassword(
   };
 }
 
-export async function getPortalData(): Promise<PortalData> {
-  return portalData;
-}
+ 
 
-export async function getCurrentPortalData(email: string): Promise<PortalData> {
-  const response = await fetch(`${API_BASE_URL}/portal/me?email=${encodeURIComponent(email)}`);
-  const data = (await response.json()) as PortalData & { message?: string };
+export async function getCurrentPortalUser(token: string) {
+  const response = await fetch(`${API_BASE_URL}/portal/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+  console.log("Dati ricevuti dal backend:", data);
 
   if (!response.ok) {
-    throw new Error(data.message || 'Dati portale non disponibili.');
+    throw new Error(data.message || "Sessione non valida.");
   }
 
   return data;
 }
 
 export async function updatePortalProfile(
-  email: string,
-  profile: PortalProfileUpdate,
+  token: string,
+  profile: PortalProfileUpdate
 ): Promise<PortalData> {
   const response = await fetch(`${API_BASE_URL}/portal/profile`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ email, ...profile }),
+    body: JSON.stringify(profile),
   });
-  const data = (await response.json()) as PortalData & { message?: string };
+
+  const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'Aggiornamento profilo non riuscito.');
+    throw new Error(data.message || "Aggiornamento non riuscito.");
   }
 
-  return data;
+  return data as PortalData;
 }
 
 export type RegistrationRequest = {

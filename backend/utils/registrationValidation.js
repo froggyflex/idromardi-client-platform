@@ -11,20 +11,22 @@ function normalizeRegistrationPayload(body) {
 }
 
 function validateRegistrationPayload(payload) {
-  if (!/^\d{8}(\/\d+)?$/.test(payload.numeroUtenza)) {
-    return 'Il numero utenza deve avere il formato 40010001 oppure 40010001/2.';
+  const numeroUtenza = String(payload.numeroUtenza || "").replace(/\s+/g, "");
+
+  if (!/^400\d+000\d+(\/\d+)*$/.test(numeroUtenza)) {
+    return "Il numero utenza deve avere il formato 400[condominio]000[utenza], esempio 40010001 oppure 40010001/2.";
   }
 
-  if (!payload.nome) {
-    return 'Il nome e obbligatorio.';
+  // if (!payload.nome?.trim()) {
+  //   return "Il nome è obbligatorio.";
+  // }
+
+  if (!payload.cognome?.trim()) {
+    return "Il cognome è obbligatorio.";
   }
 
-  if (!payload.cognome) {
-    return 'Il cognome e obbligatorio.';
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-    return 'Inserisci un indirizzo email valido.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(payload.email || "").trim())) {
+    return "Inserisci un indirizzo email valido.";
   }
 
   return null;

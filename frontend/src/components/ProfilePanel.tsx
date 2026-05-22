@@ -40,7 +40,7 @@ export function ProfilePanel({ customer, serviceNotes }: ProfilePanelProps) {
         </div>
       </section>
 
-      <section className="panel notice-panel">
+      {/* <section className="panel notice-panel">
         <div className="panel-heading compact">
           <h2>Comunicazioni</h2>
           <Bell size={18} />
@@ -50,7 +50,7 @@ export function ProfilePanel({ customer, serviceNotes }: ProfilePanelProps) {
             <li key={note}>{note}</li>
           ))}
         </ul>
-      </section>
+      </section> */}
     </aside>
   );
 }

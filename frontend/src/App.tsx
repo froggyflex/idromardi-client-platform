@@ -11,18 +11,19 @@ import { ProfilePage } from './pages/ProfilePage';
 import type { LoginResponse } from './services/api';
 
 export default function App() {
-  const [token, setToken] = useState(() => window.localStorage.getItem('idromardi_token'));
-  const [email, setEmail] = useState(() => window.localStorage.getItem('idromardi_email') || '');
+  const [token, setToken] = useState(() => window.localStorage.getItem('portalToken'));
+  const [email, setEmail] = useState(() => window.localStorage.getItem('portalEmail') || '');
   const [mustChangePassword, setMustChangePassword] = useState(
-    () => window.localStorage.getItem('idromardi_must_change_password') === 'true',
+    () => window.localStorage.getItem('portalMustChangePassword') === 'true',
   );
   const navigate = useNavigate();
 
   function handleLogin(session: LoginResponse) {
-    window.localStorage.setItem('idromardi_token', session.token);
-    window.localStorage.setItem('idromardi_email', session.email);
+
+    window.localStorage.setItem('portalToken', session.token);
+    window.localStorage.setItem('portalEmail', session.email);
     window.localStorage.setItem(
-      'idromardi_must_change_password',
+      'portalMustChangePassword',
       String(session.mustChangePassword),
     );
     setToken(session.token);
@@ -30,15 +31,17 @@ export default function App() {
     setMustChangePassword(session.mustChangePassword);
   }
 
-  function handleLogout() {
-    window.localStorage.removeItem('idromardi_token');
-    window.localStorage.removeItem('idromardi_email');
-    window.localStorage.removeItem('idromardi_must_change_password');
-    setToken(null);
-    setEmail('');
-    setMustChangePassword(false);
-    navigate('/');
-  }
+function handleLogout() {
+  localStorage.removeItem("portalToken");
+  localStorage.removeItem("portalEmail");
+  localStorage.removeItem("portalMustChangePassword");
+
+  setToken(null);
+  setEmail("");
+  setMustChangePassword(false);
+
+  navigate("/");
+}
 
   return (
     <Routes>
