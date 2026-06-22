@@ -126,7 +126,13 @@ app.use((req, res, next) => {
    HEALTH CHECK
 ========================= */
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "idromardi-client-api" });
+    res.json({
+    status: "ok",
+    service: "idromardi-client-api",
+    features: {
+      forgotPassword: true,
+    },
+  });
 });
 
 app.get("/api/debug", (_req, res) => {
