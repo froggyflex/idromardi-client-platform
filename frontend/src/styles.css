@@ -812,8 +812,8 @@ a {
 .login-card {
   width: min(430px, 100%);
   border: 1px solid #dbe4ef;
-  border-radius: 24px;
-  padding: 24px;
+  border-radius: 18px;
+  padding: 28px;
   background: #ffffff;
   box-shadow: 0 18px 45px rgba(18, 44, 70, 0.07);
 }
@@ -843,14 +843,24 @@ a {
   font-size: 0.95rem;
 }
 
-.form-error {
+.form-error,
+.form-message {
   margin: -4px 0 0;
   border-radius: 12px;
   padding: 10px 12px;
-  color: #9b1c31;
-  background: #fff0f1;
   font-size: 0.9rem;
   font-weight: 800;
+}
+
+.form-error,
+.form-message-error {
+  color: #9b1c31;
+  background: #fff0f1;
+}
+
+.form-message-success {
+  color: #12603a;
+  background: #ecfdf3;
 }
 
 form {
@@ -892,6 +902,16 @@ input:focus {
   gap: 14px;
 }
 
+.login-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.register-button {
+  margin-top: 18px;
+}
+
 .link-button,
 .muted-button {
   border: 0;
@@ -922,6 +942,7 @@ input:focus {
 
 .primary-button,
 .secondary-button,
+.ghost-button,
 .logout-button {
   display: inline-flex;
   align-items: center;
@@ -945,9 +966,24 @@ input:focus {
 }
 
 .secondary-button {
-  padding: 10px 15px;
-  color: #005fae;
-  background: #eaf6ff;
+  padding: 13px 18px;
+  color: #ffffff;
+  background: #0077bb;
+  box-shadow: 0 14px 28px rgba(0, 119, 187, 0.16);
+}
+
+.ghost-button {
+  padding: 12px 18px;
+  border: 1px solid #d9e2ef;
+  color: #1f2a44;
+  background: #ffffff;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.ghost-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
 }
 
 .app-shell {

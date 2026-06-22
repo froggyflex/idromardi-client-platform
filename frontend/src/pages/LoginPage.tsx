@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Droplets, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Droplets, Mail, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '../components/BrandLogo';
-import { login } from '../services/api';
+import { login, requestPasswordReset } from '../services/api';
 import type { LoginResponse } from '../services/api';
 
 type LoginPageProps = {
@@ -14,7 +14,25 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [email, setEmail] = useState('cliente@email.com');
   const [password, setPassword] = useState('demo1234');
   const [error, setError] = useState('');
+  const [isResetMode, setIsResetMode] = useState(false);
+  const [resetEmail, setResetEmail] = useState(email);
+  const [resetMessage, setResetMessage] = useState('');
+  const [resetStatus, setResetStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const navigate = useNavigate();
+
+  function openResetMode() {
+    setIsResetMode(true);
+    setResetEmail(email);
+    setResetMessage('');
+    setResetStatus('idle');
+    setError('');
+  }
+
+  function closeResetMode() {
+    setIsResetMode(false);
+    setResetMessage('');
+    setResetStatus('idle');
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,6 +49,27 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         caughtError instanceof Error
           ? caughtError.message
           : "Accesso non riuscito."
+      );
+    }
+  }
+
+  async function handlePasswordReset(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setResetMessage('');
+    setResetStatus('submitting');
+
+    try {
+      const result = await requestPasswordReset(resetEmail);
+      setResetStatus('success');
+      setResetMessage(`${result.message} Accedi usando il codice ricevuto come password temporanea.`);
+      setEmail(resetEmail);
+      setPassword('');
+    } catch (caughtError) {
+      setResetStatus('error');
+      setResetMessage(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Recupero password non riuscito.'
       );
     }
   }
@@ -73,53 +112,90 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         <section className="login-panel" aria-label="Accesso al portale">
           <div className="login-card">
             <span className="login-icon">
-              <Droplets size={24} />
+              {isResetMode ? <Mail size={24} /> : <Droplets size={24} />}
             </span>
             <div>
-              <h2>Accedi al portale</h2>
+              <h2>{isResetMode ? 'Recupera password' : 'Accedi al portale'}</h2>
               <p>
-                Inserisci le credenziali per consultare consumi, fatture e
-                dettagli del contratto.
+                {isResetMode
+                  ? "Inserisci l'email collegata al portale. Ti invieremo una password temporanea."
+                  : 'Inserisci le credenziali per consultare consumi, fatture e dettagli del contratto.'}
               </p>
             </div>
-            <form onSubmit={handleSubmit}>
-              <label>
-                Email
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="cliente@email.com"
-                  required
-                />
-              </label>
-              <label>
-                Password
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Inserisci la password"
-                  required
-                />
-              </label>
-              {error && <p className="form-error">{error}</p>}
-              <button className="primary-button login-submit" type="submit">
-                <ShieldCheck size={18} />
-                Accedi
-              </button>
-              <div className="form-row">
-                <button className="link-button" type="button">
-                  Hai dimenticato la password?
+
+            {isResetMode ? (
+              <form className="reset-form" onSubmit={handlePasswordReset}>
+                <label>
+                  Email registrata
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(event) => setResetEmail(event.target.value)}
+                    placeholder="cliente@email.com"
+                    required
+                  />
+                </label>
+                {resetMessage && (
+                  <p
+                    className={`form-message ${
+                      resetStatus === 'success' ? 'form-message-success' : 'form-message-error'
+                    }`}
+                  >
+                    {resetMessage}
+                  </p>
+                )}
+                <button
+                  className="secondary-button login-submit"
+                  type="submit"
+                  disabled={resetStatus === 'submitting'}
+                >
+                  <Mail size={18} />
+                  {resetStatus === 'submitting' ? 'Invio...' : 'Invia password temporanea'}
                 </button>
-                <Link className="muted-button" to="/registrati">
-                  Richiedi accesso
+                <button className="ghost-button login-submit" type="button" onClick={closeResetMode}>
+                  <ArrowLeft size={18} />
+                  Torna all'accesso
+                </button>
+              </form>
+            ) : (
+              <>
+                <form onSubmit={handleSubmit}>
+                  <label>
+                    Email
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="cliente@email.com"
+                      required
+                    />
+                  </label>
+                  <label>
+                    Password
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      placeholder="Inserisci la password"
+                      required
+                    />
+                  </label>
+                  {error && <p className="form-message form-message-error">{error}</p>}
+                  <button className="primary-button login-submit" type="submit">
+                    <ShieldCheck size={18} />
+                    Accedi
+                  </button>
+                </form>
+                <div className="login-actions">
+                  <button className="link-button" type="button" onClick={openResetMode}>
+                    Hai dimenticato la password?
+                  </button>
+                </div>
+                <Link className="register-button" to="/registrati">
+                  Registrati
                 </Link>
-              </div>
-              <Link className="register-button" to="/registrati">
-                Registrati
-              </Link>
-            </form>
+              </>
+            )}
           </div>
         </section>
       </div>

@@ -1,5 +1,4 @@
 const express = require("express");
-const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 
@@ -10,7 +9,6 @@ const authRoutes = require("./routes/authRoutes");
 const portalRoutes = require("./routes/portalRoutes");
 
 const app = express();
-const port = process.env.PORT || 4000;
 
 app.use(
   "/storage",
@@ -24,6 +22,8 @@ app.use((req, res, next) => {
 
   const allowedOrigins = [
     "http://localhost:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
     "https://app.idromardi.it",
     "http://app.idromardi.it"
   ];

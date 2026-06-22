@@ -1,6 +1,9 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const pool = require('../config/db');
 const { hashPassword, verifyPassword } = require('../utils/passwordHash');
+const { sendEmail } = require('../utils/emailSender');
 const jwt = require("jsonwebtoken");
 function createSession(user) {
   if (!process.env.JWT_SECRET) {
@@ -132,7 +135,69 @@ async function updateTemporaryPassword(email, currentPassword, newPassword) {
     mustChangePassword: false,
   });
 }
+
+async function requestPasswordReset(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+
+  const [rows] = await pool.execute(
+    `
+      SELECT
+        account_group_id,
+        email
+      FROM activated_portal_users
+      WHERE email COLLATE utf8mb4_unicode_ci
+          = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci
+        AND status = 'ACTIVE'
+      ORDER BY activated_at DESC
+      LIMIT 1
+    `,
+    [normalizedEmail]
+  );
+
+  if (!rows.length) return null;
+
+  const resetCode = crypto.randomInt(100000, 999999).toString();
+  const { hash, salt } = hashPassword(resetCode);
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+  const user = rows[0];
+  const templatePath = path.join(__dirname, '../templates/email/password-reset-code.html');
+  let html = fs.readFileSync(templatePath, 'utf8');
+  html = html.replace('{{CODE}}', resetCode);
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    await connection.execute(
+      `
+        UPDATE activated_portal_users
+        SET
+          password_hash = ?,
+          password_salt = ?,
+          must_change_password = 1,
+          temp_password_expires_at = ?,
+          updated_at = NOW()
+        WHERE account_group_id = ?
+          AND status = 'ACTIVE'
+      `,
+      [hash, salt, expiresAt, user.account_group_id]
+    );
+
+    await sendEmail(user.email, 'Recupero password Idromardi', html);
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+
+  return { expiresAt: expiresAt.toISOString() };
+}
+
 module.exports = {
   authenticatePortalUser,
   updateTemporaryPassword,
+  requestPasswordReset,
 };

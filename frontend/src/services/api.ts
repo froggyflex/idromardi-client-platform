@@ -1,7 +1,9 @@
 import type { PortalData, PortalProfileUpdate } from '../types/portal';
 
-const API_BASE_URL = '/api'; //import.meta.env.VITE_API_BASE_URL || 
-
+//const API_BASE_URL = '/api'; //import.meta.env.VITE_API_BASE_URL || 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
+  
  export async function askPortalAssistant(
   token: string,
   message: string
@@ -49,6 +51,32 @@ export async function login(email: string, password: string): Promise<LoginRespo
     token: data.token,
     email: data.email,
     mustChangePassword: Boolean(data.mustChangePassword),
+  };
+}
+
+export async function requestPasswordReset(email: string): Promise<{ message: string; expiresAt: string }> {
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  const data = (await response.json().catch(() => ({}))) as { message?: string; expiresAt?: string };
+
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+        (response.status === 404
+          ? 'Recupero password non disponibile sul server. Riprova tra poco.'
+          : 'Recupero password non riuscito.'),
+    );
+  }
+
+  return {
+    message: data.message || 'Password temporanea inviata via email.',
+    expiresAt: data.expiresAt || '',
   };
 }
 

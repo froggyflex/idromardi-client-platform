@@ -1,5 +1,6 @@
 const {
   authenticatePortalUser,
+  requestPasswordReset,
   updateTemporaryPassword,
 } = require('../services/authService');
 
@@ -50,7 +51,31 @@ async function changeTemporaryPassword(req, res, next) {
   }
 }
 
+async function forgotPassword(req, res, next) {
+  try {
+    const email = String(req.body.email || '').trim().toLowerCase();
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email obbligatoria.' });
+    }
+
+    const result = await requestPasswordReset(email);
+
+    if (!result) {
+      return res.status(404).json({ message: 'Nessun account attivo associato a questa email.' });
+    }
+
+    return res.json({
+      message: 'Ti abbiamo inviato una password temporanea via email.',
+      expiresAt: result.expiresAt,
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   login,
+  forgotPassword,
   changeTemporaryPassword,
 };
