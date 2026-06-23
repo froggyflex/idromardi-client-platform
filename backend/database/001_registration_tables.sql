@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS registration_confirmation_codes (
   interni_json JSON NULL,
   nome VARCHAR(120) NOT NULL,
   cognome VARCHAR(120) NOT NULL,
-  email VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NULL,
+  phone VARCHAR(20) NULL,
   code_hash CHAR(64) NOT NULL,
   expires_at DATETIME NOT NULL,
   consumed_at DATETIME NULL,
@@ -16,7 +17,9 @@ CREATE TABLE IF NOT EXISTS registration_confirmation_codes (
   PRIMARY KEY (id),
   UNIQUE KEY uq_registration_request_id (request_id),
   KEY idx_registration_email (email),
+  KEY idx_registration_phone (phone),
   KEY idx_registration_code_lookup (email, expires_at, consumed_at),
+  KEY idx_registration_phone_lookup (phone, expires_at, consumed_at),
   KEY idx_registration_condominio (id_Condominio)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -26,7 +29,9 @@ CREATE TABLE IF NOT EXISTS activated_portal_users (
   id_user INT NOT NULL,
   id_auto INT NOT NULL,
   interno VARCHAR(50) NULL,
-  email VARCHAR(255) NOT NULL,
+  access_identifier VARCHAR(80) NULL,
+  email VARCHAR(255) NULL,
+  phone VARCHAR(20) NULL,
   password_hash CHAR(64) NOT NULL,
   password_salt CHAR(32) NOT NULL,
   must_change_password TINYINT(1) NOT NULL DEFAULT 1,
@@ -39,6 +44,8 @@ CREATE TABLE IF NOT EXISTS activated_portal_users (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_portal_user_utenza (id_Condominio, id_user),
+  KEY idx_portal_user_access_identifier (access_identifier),
   KEY idx_portal_user_email (email),
+  KEY idx_portal_user_phone (phone),
   KEY idx_portal_user_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
