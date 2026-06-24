@@ -11,6 +11,10 @@ const DOCUMENTS_OBJECT_PREFIX =
   process.env.PUBLIC_DOCUMENTS_OBJECT_PREFIX ||
   process.env.CLOUDFLARE_DOCUMENTS_PREFIX ||
   "";
+const DOCUMENTS_USER_FOLDER =
+  process.env.PUBLIC_DOCUMENTS_USER_FOLDER ||
+  process.env.CLOUDFLARE_USER_DOCUMENTS_FOLDER ||
+  "bolletta_utente";
 
 let openAiClient = null;
 
@@ -144,9 +148,10 @@ function getPathFileName(value) {
   return trimLeadingSlash(value).split("/").filter(Boolean).pop() || "";
 }
 
-function buildDocumentObjectPath(filepath, filename) {
-  const value = trimLeadingSlash(filepath);
+function buildDocumentObjectPath(row) {
+  const value = trimLeadingSlash(row.filepath);
   const prefix = trimLeadingSlash(DOCUMENTS_OBJECT_PREFIX).replace(/\/+$/, "");
+  const filename = trimLeadingSlash(row.filename) || getPathFileName(value);
 
   if (!prefix) {
     return value;
@@ -156,14 +161,25 @@ function buildDocumentObjectPath(filepath, filename) {
     return value;
   }
 
+  if (value.startsWith("storage/") && row.condominio_id && row.period_key && filename) {
+    return [
+      prefix,
+      trimLeadingSlash(row.condominio_id),
+      trimLeadingSlash(row.period_key),
+      trimLeadingSlash(DOCUMENTS_USER_FOLDER),
+      filename,
+    ].join("/");
+  }
+
   if (value.startsWith("storage/")) {
-    return `${prefix}/${trimLeadingSlash(filename) || getPathFileName(value)}`;
+    return `${prefix}/${filename}`;
   }
 
   return `${prefix}/${value}`;
 }
 
-function buildDocumentUrl(filepath, filename) {
+function buildDocumentUrl(row) {
+  const filepath = row?.filepath;
   const value = String(filepath || "").trim();
 
   if (!value) return null;
@@ -173,7 +189,7 @@ function buildDocumentUrl(filepath, filename) {
   }
 
   if (DOCUMENTS_BASE_URL) {
-    return `${trimTrailingSlash(DOCUMENTS_BASE_URL)}/${buildDocumentObjectPath(value, filename)}`;
+    return `${trimTrailingSlash(DOCUMENTS_BASE_URL)}/${buildDocumentObjectPath(row)}`;
   }
 
   if (BASE_URL) {
@@ -204,7 +220,7 @@ function mapInvoiceRow(row) {
 }
 
 function mapBillDocumentRow(row) {
-  const fileUrl = buildDocumentUrl(row.filepath, row.filename);
+  const fileUrl = buildDocumentUrl(row);
 
   return {
     id: row.id,
