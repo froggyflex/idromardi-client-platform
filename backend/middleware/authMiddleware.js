@@ -20,7 +20,9 @@ function authMiddleware(req, res, next) {
       portalUserId: decoded.portalUserId,
       accountGroupId: decoded.accountGroupId,
       idAuto: decoded.idAuto,
+      accessIdentifier: decoded.accessIdentifier,
       email: decoded.email,
+      phone: decoded.phone,
     };
 
     return next();

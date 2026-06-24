@@ -1,13 +1,12 @@
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
 const pool = require('../config/db');
 const { hashPassword, verifyPassword } = require('../utils/passwordHash');
-const { sendEmail } = require('../utils/emailSender');
-const jwt = require("jsonwebtoken");
+const { normalizeAccessIdentifier } = require('../utils/registrationValidation');
+const { findMatchingUser } = require('./registrationService');
+const jwt = require('jsonwebtoken');
+
 function createSession(user) {
   if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET non definito.");
+    throw new Error('JWT_SECRET non definito.');
   }
 
   const token = jwt.sign(
@@ -15,21 +14,25 @@ function createSession(user) {
       portalUserId: user.portalUserId,
       accountGroupId: user.accountGroupId,
       idAuto: user.idAuto,
-      email: user.email,
+      accessIdentifier: user.accessIdentifier,
+      email: user.email || '',
+      phone: user.phone || '',
     },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: '7d' },
   );
 
   return {
     token,
-    email: user.email,
+    accessIdentifier: user.accessIdentifier,
+    email: user.email || '',
+    phone: user.phone || '',
     mustChangePassword: Boolean(user.mustChangePassword),
   };
 }
 
-async function authenticatePortalUser(email, password) {
-  const normalizedEmail = String(email || "").trim().toLowerCase();
+async function authenticatePortalUser(identifier, password) {
+  const accessIdentifier = normalizeAccessIdentifier(identifier);
 
   const [rows] = await pool.execute(
     `
@@ -40,19 +43,20 @@ async function authenticatePortalUser(email, password) {
         id_user,
         id_Condominio,
         email,
+        '' AS phone,
+        access_identifier,
         password_hash,
         password_salt,
         must_change_password,
         temp_password_expires_at
       FROM activated_portal_users
-      WHERE email COLLATE utf8mb4_unicode_ci
-          = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci
+      WHERE access_identifier = ?
         AND status = 'ACTIVE'
         AND password_hash IS NOT NULL
         AND password_salt IS NOT NULL
       ORDER BY activated_at DESC
     `,
-    [normalizedEmail]
+    [accessIdentifier],
   );
 
   if (!rows.length) return null;
@@ -63,7 +67,7 @@ async function authenticatePortalUser(email, password) {
     const isValidPassword = verifyPassword(
       password,
       row.password_salt,
-      row.password_hash
+      row.password_hash,
     );
 
     if (isValidPassword) {
@@ -88,7 +92,7 @@ async function authenticatePortalUser(email, password) {
       SET last_login_at = NOW()
       WHERE account_group_id = ?
     `,
-    [matchedUser.account_group_id]
+    [matchedUser.account_group_id],
   );
 
   return createSession({
@@ -96,19 +100,20 @@ async function authenticatePortalUser(email, password) {
     accountGroupId: matchedUser.account_group_id,
     idAuto: matchedUser.id_auto,
     email: matchedUser.email,
+    phone: matchedUser.phone,
+    accessIdentifier: matchedUser.access_identifier,
     mustChangePassword: matchedUser.must_change_password,
   });
 }
 
-async function updateTemporaryPassword(email, currentPassword, newPassword) {
-  const session = await authenticatePortalUser(email, currentPassword);
+async function updateTemporaryPassword(identifier, currentPassword, newPassword) {
+  const session = await authenticatePortalUser(identifier, currentPassword);
 
   if (!session || !session.mustChangePassword) {
     return null;
   }
 
   const decoded = jwt.verify(session.token, process.env.JWT_SECRET);
-
   const { hash, salt } = hashPassword(newPassword);
 
   await pool.execute(
@@ -124,7 +129,7 @@ async function updateTemporaryPassword(email, currentPassword, newPassword) {
       WHERE account_group_id = ?
         AND status = 'ACTIVE'
     `,
-    [hash, salt, decoded.accountGroupId]
+    [hash, salt, decoded.accountGroupId],
   );
 
   return createSession({
@@ -132,72 +137,105 @@ async function updateTemporaryPassword(email, currentPassword, newPassword) {
     accountGroupId: decoded.accountGroupId,
     idAuto: decoded.idAuto,
     email: decoded.email,
+    phone: decoded.phone,
+    accessIdentifier: decoded.accessIdentifier,
     mustChangePassword: false,
   });
 }
 
-async function requestPasswordReset(email) {
-  const normalizedEmail = String(email || "").trim().toLowerCase();
+async function verifyPasswordResetIdentity(payload) {
+  const accessIdentifier = normalizeAccessIdentifier(payload.numeroUtenza);
+  const match = await findMatchingUser(payload);
+
+  if (!match) return null;
 
   const [rows] = await pool.execute(
     `
-      SELECT
-        account_group_id,
-        email
+      SELECT account_group_id, id, id_auto, email, '' AS phone, access_identifier
       FROM activated_portal_users
-      WHERE email COLLATE utf8mb4_unicode_ci
-          = CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci
+      WHERE (
+          access_identifier = ?
+          OR (
+            id_Condominio = ?
+            AND id_user IN (${match.userIds.map(() => '?').join(', ')})
+          )
+        )
         AND status = 'ACTIVE'
       ORDER BY activated_at DESC
       LIMIT 1
     `,
-    [normalizedEmail]
+    [accessIdentifier, match.idCondominio, ...match.userIds],
   );
 
   if (!rows.length) return null;
 
-  const resetCode = crypto.randomInt(100000, 999999).toString();
-  const { hash, salt } = hashPassword(resetCode);
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
   const user = rows[0];
-  const templatePath = path.join(__dirname, '../templates/email/password-reset-code.html');
-  let html = fs.readFileSync(templatePath, 'utf8');
-  html = html.replace('{{CODE}}', resetCode);
+  const resetToken = jwt.sign(
+    {
+      purpose: 'password_reset',
+      portalUserId: user.id,
+      accountGroupId: user.account_group_id,
+      idAuto: user.id_auto,
+      email: user.email || '',
+      phone: user.phone || '',
+      accessIdentifier,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '10m' },
+  );
 
-  const connection = await pool.getConnection();
+  return {
+    resetToken,
+    accessIdentifier,
+  };
+}
+
+async function resetPasswordWithToken(resetToken, newPassword) {
+  let decoded;
 
   try {
-    await connection.beginTransaction();
-
-    await connection.execute(
-      `
-        UPDATE activated_portal_users
-        SET
-          password_hash = ?,
-          password_salt = ?,
-          must_change_password = 1,
-          temp_password_expires_at = ?,
-          updated_at = NOW()
-        WHERE account_group_id = ?
-          AND status = 'ACTIVE'
-      `,
-      [hash, salt, expiresAt, user.account_group_id]
-    );
-
-    await sendEmail(user.email, 'Recupero password Idromardi', html);
-    await connection.commit();
-  } catch (error) {
-    await connection.rollback();
-    throw error;
-  } finally {
-    connection.release();
+    decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+  } catch {
+    return null;
   }
 
-  return { expiresAt: expiresAt.toISOString() };
+  if (decoded.purpose !== 'password_reset' || !decoded.accountGroupId) {
+    return null;
+  }
+
+  const { hash, salt } = hashPassword(newPassword);
+
+  await pool.execute(
+    `
+      UPDATE activated_portal_users
+      SET
+        password_hash = ?,
+        password_salt = ?,
+        must_change_password = 0,
+        temp_password_expires_at = NULL,
+        access_identifier = ?,
+        password_changed_at = NOW(),
+        updated_at = NOW()
+      WHERE account_group_id = ?
+        AND status = 'ACTIVE'
+    `,
+    [hash, salt, decoded.accessIdentifier, decoded.accountGroupId],
+  );
+
+  return createSession({
+    portalUserId: decoded.portalUserId,
+    accountGroupId: decoded.accountGroupId,
+    idAuto: decoded.idAuto,
+    email: decoded.email,
+    phone: decoded.phone,
+    accessIdentifier: decoded.accessIdentifier,
+    mustChangePassword: false,
+  });
 }
 
 module.exports = {
   authenticatePortalUser,
+  resetPasswordWithToken,
   updateTemporaryPassword,
-  requestPasswordReset,
+  verifyPasswordResetIdentity,
 };

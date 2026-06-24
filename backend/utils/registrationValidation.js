@@ -1,38 +1,61 @@
+function normalizeAccessIdentifier(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s/g, '')
+    .replace(/[^0-9/]/g, '');
+}
+
+function normalizeFiscalCode(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s/g, '')
+    .toUpperCase();
+}
+
 function normalizeRegistrationPayload(body) {
   return {
-    numeroUtenza: String(body.numeroUtenza || '')
-      .trim()
-      .replace(/\s/g, '')
-      .replace(/[^0-9/]/g, ''),
+    numeroUtenza: normalizeAccessIdentifier(body.numeroUtenza),
     nome: String(body.nome || '').trim(),
     cognome: String(body.cognome || '').trim(),
-    email: String(body.email || '').trim().toLowerCase(),
+    fiscalCode: normalizeFiscalCode(body.fiscalCode || body.codiceFiscale || body.cf),
+    password: String(body.password || ''),
   };
 }
 
-function validateRegistrationPayload(payload) {
-  const numeroUtenza = String(payload.numeroUtenza || "").replace(/\s+/g, "");
+function validateIdentityPayload(payload) {
+  const numeroUtenza = String(payload.numeroUtenza || '').replace(/\s+/g, '');
 
   if (!/^400\d+000\d+(\/\d+)*$/.test(numeroUtenza)) {
-    return "Il numero utenza deve avere il formato 400[condominio]000[utenza], esempio 40010001 oppure 40010001/2.";
+    return 'Il numero utenza deve avere il formato 400[condominio]000[utenza], esempio 40010001 oppure 40010001/2.';
   }
-
-  // if (!payload.nome?.trim()) {
-  //   return "Il nome è obbligatorio.";
-  // }
 
   if (!payload.cognome?.trim()) {
-    return "Il cognome è obbligatorio.";
+    return 'Il cognome e obbligatorio.';
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(payload.email || "").trim())) {
-    return "Inserisci un indirizzo email valido.";
+  if (!/^[A-Z0-9]{11,16}$/.test(String(payload.fiscalCode || ''))) {
+    return 'Inserisci un codice fiscale valido.';
+  }
+
+  return null;
+}
+
+function validateRegistrationPayload(payload) {
+  const identityError = validateIdentityPayload(payload);
+
+  if (identityError) return identityError;
+
+  if (String(payload.password || '').length < 8) {
+    return 'La password deve avere almeno 8 caratteri.';
   }
 
   return null;
 }
 
 module.exports = {
+  normalizeAccessIdentifier,
+  normalizeFiscalCode,
   normalizeRegistrationPayload,
+  validateIdentityPayload,
   validateRegistrationPayload,
 };

@@ -1,4 +1,4 @@
-const { findMatchingUser, sendConfirmationCode, resendConfirmationCode } = require('../services/registrationService');
+const { createPortalAccount, findMatchingUser } = require('../services/registrationService');
 const { normalizeRegistrationPayload, validateRegistrationPayload } = require('../utils/registrationValidation');
 
 async function requestRegistration(req, res, next) {
@@ -12,45 +12,28 @@ async function requestRegistration(req, res, next) {
 
     const matchedUser = await findMatchingUser(payload);
 
-    console.log(`Matched user: ${matchedUser ? matchedUser.id_auto : 'none'}`);
     if (!matchedUser) {
       return res.status(404).json({
         message:
-          'Non abbiamo trovato una corrispondenza con i dati inseriti. Verifica numero utenza, nome e cognome.',
+          'Non abbiamo trovato una corrispondenza con i dati inseriti. Verifica numero utenza, cognome e codice fiscale.',
       });
     }
 
-    const confirmation = await sendConfirmationCode(matchedUser, payload.email);
+    const account = await createPortalAccount(matchedUser, payload);
 
     return res.status(200).json({
-      message:
-        'Utenza trovata. Ti abbiamo inviato un codice via email per confermare la registrazione.',
-      requestId: confirmation.requestId,
-      expiresAt: confirmation.expiresAt,
+      message: 'Account creato correttamente. Ora puoi accedere con il numero utenza e la password scelta.',
+      accessIdentifier: account.accessIdentifier,
     });
   } catch (error) {
     return next(error);
   }
 }
 
-async function resendCode(req, res, next) {
-  try {
-    const { requestId } = req.body;
-
-    if (!requestId) {
-      return res.status(400).json({ message: 'requestId è obbligatorio.' });
-    }
-
-    const result = await resendConfirmationCode(requestId);
-
-    return res.status(200).json({
-      message: 'Nuovo codice inviato alla tua email.',
-      requestId: result.requestId,
-      expiresAt: result.expiresAt,
-    });
-  } catch (error) {
-    return next(error);
-  }
+async function resendCode(_req, res) {
+  return res.status(410).json({
+    message: 'Il codice di conferma non e piu necessario. Registrati impostando direttamente la password.',
+  });
 }
 
 module.exports = {

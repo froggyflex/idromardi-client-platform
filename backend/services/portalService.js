@@ -444,7 +444,7 @@ function buildPortalData(rows, invoiceRows = [], billDocumentRows = []) {
       name: fullName,
       firstName: primary.Nome || "",
       lastName: primary.Cognome || "",
-      email: primary.email,
+      email: primary.email || "",
       phone: primary.Mobile || "",
       mobile: primary.Mobile || "",
       fiscalCode: primary.C_F || "",
@@ -463,7 +463,7 @@ function buildPortalData(rows, invoiceRows = [], billDocumentRows = []) {
 
     serviceNotes: [
       "Profilo collegato al portale clienti Idromardi",
-      "Email verificata tramite codice temporaneo",
+      "Identita verificata tramite dati utenza",
       "Puoi aggiornare i dati di contatto dalla sezione Profilo",
     ],
   };
@@ -830,7 +830,7 @@ function buildPortalData(rows, { latestInvoiceRows = [], allInvoiceRows = [] }, 
       name: `${primary.Nome || ""} ${primary.Cognome || ""}`.trim(),
       firstName: primary.Nome || "",
       lastName: primary.Cognome || "",
-      email: primary.email,
+      email: primary.email || "",
       phone: primary.Mobile || "",
       mobile: primary.Mobile || "",
       fiscalCode: primary.C_F || "",
@@ -857,7 +857,7 @@ function buildPortalData(rows, { latestInvoiceRows = [], allInvoiceRows = [] }, 
 
     serviceNotes: [
       "Profilo collegato al portale clienti Idromardi",
-      "Email verificata tramite codice temporaneo",
+      "Identita verificata tramite dati utenza",
       "Puoi aggiornare i dati di contatto dalla sezione Profilo",
     ],
   };

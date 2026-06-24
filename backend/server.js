@@ -131,6 +131,8 @@ app.get("/api/health", (_req, res) => {
     service: "idromardi-client-api",
     features: {
       forgotPassword: true,
+      freeIdentityRegistration: true,
+      twoStepPasswordReset: true,
     },
   });
 });
