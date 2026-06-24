@@ -1,6 +1,7 @@
 const pool = require("../config/db");
 const ExcelJS = require("exceljs");
 const OpenAI = require("openai");
+const crypto = require("crypto");
 
 const BASE_URL = process.env.BASE_URL || "";
 const DOCUMENTS_BASE_URL =
@@ -15,6 +16,15 @@ const DOCUMENTS_USER_FOLDER =
   process.env.PUBLIC_DOCUMENTS_USER_FOLDER ||
   process.env.CLOUDFLARE_USER_DOCUMENTS_FOLDER ||
   "bolletta_utente";
+const R2_BUCKET = process.env.R2_BUCKET || process.env.CLOUDFLARE_R2_BUCKET || "";
+const R2_ENDPOINT = process.env.R2_ENDPOINT || process.env.CLOUDFLARE_R2_ENDPOINT || "";
+const R2_ACCESS_KEY_ID =
+  process.env.R2_ACCESS_KEY_ID || process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || "";
+const R2_SECRET_ACCESS_KEY =
+  process.env.R2_SECRET_ACCESS_KEY || process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || "";
+const R2_REGION = process.env.R2_REGION || "auto";
+
+const r2ListCache = new Map();
 
 let openAiClient = null;
 
@@ -148,6 +158,21 @@ function getPathFileName(value) {
   return trimLeadingSlash(value).split("/").filter(Boolean).pop() || "";
 }
 
+function encodeObjectPath(value) {
+  return trimLeadingSlash(value)
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
+function getDocumentStem(row) {
+  const source = row.filename || getPathFileName(row.filepath);
+
+  return String(source || "")
+    .replace(/\.[^.]+$/, "")
+    .trim();
+}
+
 function buildDocumentObjectPath(row) {
   const value = trimLeadingSlash(row.filepath);
   const prefix = trimLeadingSlash(DOCUMENTS_OBJECT_PREFIX).replace(/\/+$/, "");
@@ -178,6 +203,12 @@ function buildDocumentObjectPath(row) {
   return `${prefix}/${value}`;
 }
 
+function buildPublicDocumentUrl(objectPath) {
+  if (!DOCUMENTS_BASE_URL || !objectPath) return null;
+
+  return `${trimTrailingSlash(DOCUMENTS_BASE_URL)}/${encodeObjectPath(objectPath)}`;
+}
+
 function buildDocumentUrl(row) {
   const filepath = row?.filepath;
   const value = String(filepath || "").trim();
@@ -189,7 +220,7 @@ function buildDocumentUrl(row) {
   }
 
   if (DOCUMENTS_BASE_URL) {
-    return `${trimTrailingSlash(DOCUMENTS_BASE_URL)}/${buildDocumentObjectPath(row)}`;
+    return buildPublicDocumentUrl(buildDocumentObjectPath(row));
   }
 
   if (BASE_URL) {
@@ -197,6 +228,128 @@ function buildDocumentUrl(row) {
   }
 
   return value.startsWith("/") ? value : `/${value}`;
+}
+
+function getR2BaseEndpoint() {
+  if (!R2_ENDPOINT) return null;
+
+  const endpointUrl = new URL(R2_ENDPOINT);
+  endpointUrl.pathname = "";
+  endpointUrl.search = "";
+  endpointUrl.hash = "";
+
+  return trimTrailingSlash(endpointUrl.toString());
+}
+
+function hmac(key, value, encoding) {
+  return crypto.createHmac("sha256", key).update(value).digest(encoding);
+}
+
+function sha256(value) {
+  return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+function getSigningKey(dateStamp) {
+  const dateKey = hmac(`AWS4${R2_SECRET_ACCESS_KEY}`, dateStamp);
+  const regionKey = hmac(dateKey, R2_REGION);
+  const serviceKey = hmac(regionKey, "s3");
+
+  return hmac(serviceKey, "aws4_request");
+}
+
+function getSignedR2Headers(url) {
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, "");
+  const dateStamp = amzDate.slice(0, 8);
+  const credentialScope = `${dateStamp}/${R2_REGION}/s3/aws4_request`;
+  const canonicalUri = url.pathname
+    .split("/")
+    .map((segment) => encodeURIComponent(decodeURIComponent(segment)))
+    .join("/");
+  const canonicalQueryString = Array.from(url.searchParams.entries())
+    .sort(([keyA, valueA], [keyB, valueB]) =>
+      keyA === keyB ? valueA.localeCompare(valueB) : keyA.localeCompare(keyB)
+    )
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join("&");
+  const canonicalHeaders = `host:${url.host}\nx-amz-content-sha256:UNSIGNED-PAYLOAD\nx-amz-date:${amzDate}\n`;
+  const signedHeaders = "host;x-amz-content-sha256;x-amz-date";
+  const canonicalRequest = [
+    "GET",
+    canonicalUri,
+    canonicalQueryString,
+    canonicalHeaders,
+    signedHeaders,
+    "UNSIGNED-PAYLOAD",
+  ].join("\n");
+  const stringToSign = [
+    "AWS4-HMAC-SHA256",
+    amzDate,
+    credentialScope,
+    sha256(canonicalRequest),
+  ].join("\n");
+  const signature = hmac(getSigningKey(dateStamp), stringToSign, "hex");
+
+  return {
+    Authorization: `AWS4-HMAC-SHA256 Credential=${R2_ACCESS_KEY_ID}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`,
+    "x-amz-content-sha256": "UNSIGNED-PAYLOAD",
+    "x-amz-date": amzDate,
+  };
+}
+
+async function listR2ObjectKeys(prefix) {
+  if (!R2_BUCKET || !R2_ENDPOINT || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
+    return [];
+  }
+
+  if (r2ListCache.has(prefix)) {
+    return r2ListCache.get(prefix);
+  }
+
+  const endpoint = getR2BaseEndpoint();
+  if (!endpoint) return [];
+
+  const url = new URL(`${endpoint}/${R2_BUCKET}`);
+  url.searchParams.set("list-type", "2");
+  url.searchParams.set("prefix", prefix);
+
+  const response = await fetch(url, {
+    headers: getSignedR2Headers(url),
+  });
+
+  if (!response.ok) {
+    r2ListCache.set(prefix, []);
+    return [];
+  }
+
+  const xml = await response.text();
+  const keys = Array.from(xml.matchAll(/<Key>([\s\S]*?)<\/Key>/g)).map((match) =>
+    match[1]
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+  );
+
+  r2ListCache.set(prefix, keys);
+  return keys;
+}
+
+async function resolveDocumentUrl(row) {
+  const fallbackUrl = buildDocumentUrl(row);
+  const objectPath = buildDocumentObjectPath(row);
+  const folderPrefix = objectPath.split("/").slice(0, -1).join("/");
+  const documentStem = getDocumentStem(row);
+
+  if (!folderPrefix || !documentStem || !DOCUMENTS_BASE_URL) {
+    return fallbackUrl;
+  }
+
+  const keys = await listR2ObjectKeys(`${folderPrefix}/`);
+  const matchedKey = keys.find((key) => getPathFileName(key).includes(documentStem));
+
+  return matchedKey ? buildPublicDocumentUrl(matchedKey) : fallbackUrl;
 }
 
 function mapInvoiceRow(row) {
@@ -220,7 +373,7 @@ function mapInvoiceRow(row) {
 }
 
 function mapBillDocumentRow(row) {
-  const fileUrl = buildDocumentUrl(row);
+  const fileUrl = row.resolvedFileUrl || buildDocumentUrl(row);
 
   return {
     id: row.id,
@@ -442,8 +595,14 @@ async function getPortalDataByAccountGroupId(accountGroupId) {
   const utenzaIds = rows.map((row) => row.utenza_id).filter(Boolean);
   const invoiceRows = await getInvoiceRowsByUtenzeIds(utenzaIds);
   const billDocumentRows = await getBillDocumentsByUtenzeIds(utenzaIds);
+  const resolvedBillDocumentRows = await Promise.all(
+    billDocumentRows.map(async (row) => ({
+      ...row,
+      resolvedFileUrl: await resolveDocumentUrl(row),
+    }))
+  );
 
-  return buildPortalData(rows, invoiceRows, billDocumentRows);
+  return buildPortalData(rows, invoiceRows, resolvedBillDocumentRows);
 }
 
 async function exportInvoicesByAccountGroupId(accountGroupId) {

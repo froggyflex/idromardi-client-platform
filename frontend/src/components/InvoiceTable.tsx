@@ -180,8 +180,8 @@ export function InvoiceTable({ invoices }: InvoiceTableProps) {
                               <span>{invoice.id}</span>
                             </div>
 
-                            <span className="invoice-status-pill available">
-                              Disponibile
+                            <span className={`invoice-status-pill ${invoice.fileUrl ? "available" : "due"}`}>
+                              {invoice.fileUrl ? "Disponibile" : "Da collegare"}
                             </span>
                           </div>
 
