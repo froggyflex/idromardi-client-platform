@@ -71,9 +71,15 @@ async function forgotPassword(req, res, next) {
 
       const result = await verifyPasswordResetIdentity(payload);
 
-      if (!result) {
+      if (!result.ok && result.reason === 'ACCOUNT_NOT_ACTIVE') {
         return res.status(404).json({
-          message: 'Non abbiamo trovato un account attivo con questi dati. Verifica numero utenza, cognome e codice fiscale.',
+          message: 'Utenza verificata, ma non esiste ancora un account portale attivo. Usa Registrati per creare l account.',
+        });
+      }
+
+      if (!result.ok) {
+        return res.status(404).json({
+          message: 'Non abbiamo trovato una corrispondenza con questi dati. Verifica numero utenza, cognome e codice fiscale.',
         });
       }
 

@@ -147,7 +147,9 @@ async function verifyPasswordResetIdentity(payload) {
   const accessIdentifier = normalizeAccessIdentifier(payload.numeroUtenza);
   const match = await findMatchingUser(payload);
 
-  if (!match) return null;
+  if (!match) {
+    return { ok: false, reason: 'IDENTITY_NOT_FOUND' };
+  }
 
   const [rows] = await pool.execute(
     `
@@ -167,7 +169,9 @@ async function verifyPasswordResetIdentity(payload) {
     [accessIdentifier, match.idCondominio, ...match.userIds],
   );
 
-  if (!rows.length) return null;
+  if (!rows.length) {
+    return { ok: false, reason: 'ACCOUNT_NOT_ACTIVE' };
+  }
 
   const user = rows[0];
   const resetToken = jwt.sign(
@@ -185,6 +189,7 @@ async function verifyPasswordResetIdentity(payload) {
   );
 
   return {
+    ok: true,
     resetToken,
     accessIdentifier,
   };

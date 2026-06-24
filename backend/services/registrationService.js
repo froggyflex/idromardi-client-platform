@@ -61,22 +61,31 @@ async function findMatchingUser(payload) {
          = u.condominio_id COLLATE utf8mb4_unicode_ci
       WHERE c.codice = ?
         AND u.id_user IN (${userPlaceholders})
-        AND (
-          u.Nome IS NULL
-          OR TRIM(u.Nome) = ''
-          OR LOWER(TRIM(u.Nome)) = LOWER(TRIM(?))
-        )
-        AND LOWER(TRIM(u.Cognome)) = LOWER(TRIM(?))
-        AND UPPER(REPLACE(TRIM(u.C_F), ' ', '')) = ?
         AND u.Stato = 'ATTIVA'
     `,
-    [idCondominio, ...userIds, nome, cognome, fiscalCode],
+    [idCondominio, ...userIds],
   );
 
   const matchedUserIds = new Set(rows.map((row) => Number(row.id_user)));
   const allUsersMatched = userIds.every((idUser) => matchedUserIds.has(Number(idUser)));
 
   if (!allUsersMatched) return null;
+
+  const allNamesMatch = rows.every((row) => {
+    const storedName = String(row.Nome || '').trim().toLowerCase();
+
+    return !storedName || !nome || storedName === nome.toLowerCase();
+  });
+
+  const allSurnamesMatch = rows.every(
+    (row) => String(row.Cognome || '').trim().toLowerCase() === cognome.toLowerCase(),
+  );
+
+  const hasFiscalCodeMatch = rows.some(
+    (row) => String(row.C_F || '').trim().replace(/\s/g, '').toUpperCase() === fiscalCode,
+  );
+
+  if (!allNamesMatch || !allSurnamesMatch || !hasFiscalCodeMatch) return null;
 
   return {
     idCondominio,
