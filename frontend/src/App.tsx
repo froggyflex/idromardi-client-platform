@@ -12,7 +12,13 @@ import type { LoginResponse } from './services/api';
 
 export default function App() {
   const [token, setToken] = useState(() => window.localStorage.getItem('portalToken'));
-  const [email, setEmail] = useState(() => window.localStorage.getItem('portalEmail') || '');
+  const [accessIdentifier, setAccessIdentifier] = useState(
+    () =>
+      window.localStorage.getItem('portalAccessIdentifier') ||
+      window.localStorage.getItem('portalPhone') ||
+      window.localStorage.getItem('portalEmail') ||
+      '',
+  );
   const [mustChangePassword, setMustChangePassword] = useState(
     () => window.localStorage.getItem('portalMustChangePassword') === 'true',
   );
@@ -21,23 +27,27 @@ export default function App() {
   function handleLogin(session: LoginResponse) {
 
     window.localStorage.setItem('portalToken', session.token);
-    window.localStorage.setItem('portalEmail', session.email);
+    window.localStorage.setItem('portalAccessIdentifier', session.accessIdentifier);
+    window.localStorage.removeItem('portalPhone');
+    window.localStorage.removeItem('portalEmail');
     window.localStorage.setItem(
       'portalMustChangePassword',
       String(session.mustChangePassword),
     );
     setToken(session.token);
-    setEmail(session.email);
+    setAccessIdentifier(session.accessIdentifier);
     setMustChangePassword(session.mustChangePassword);
   }
 
 function handleLogout() {
   localStorage.removeItem("portalToken");
+  localStorage.removeItem("portalAccessIdentifier");
+  localStorage.removeItem("portalPhone");
   localStorage.removeItem("portalEmail");
   localStorage.removeItem("portalMustChangePassword");
 
   setToken(null);
-  setEmail("");
+  setAccessIdentifier("");
   setMustChangePassword(false);
 
   navigate("/");
@@ -60,7 +70,7 @@ function handleLogout() {
         path="/cambia-password"
         element={
           <ProtectedRoute isAuthenticated={Boolean(token)}>
-            <ChangePasswordPage email={email} onPasswordChanged={handleLogin} />
+            <ChangePasswordPage accessIdentifier={accessIdentifier} onPasswordChanged={handleLogin} />
           </ProtectedRoute>
         }
       />

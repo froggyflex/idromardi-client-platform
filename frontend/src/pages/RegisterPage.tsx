@@ -1,56 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { ArrowLeft, Droplets, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BrandLogo } from '../components/BrandLogo';
-import { requestRegistration, resendConfirmationCode } from '../services/api';
+import { requestRegistration } from '../services/api';
 
 type RegisterForm = {
   numeroUtenza: string;
   nome: string;
   cognome: string;
-  email: string;
+  fiscalCode: string;
+  password: string;
+  confirmPassword: string;
 };
 
 const initialForm: RegisterForm = {
   numeroUtenza: '',
   nome: '',
   cognome: '',
-  email: '',
+  fiscalCode: '',
+  password: '',
+  confirmPassword: '',
 };
 
 export function RegisterPage() {
   const [form, setForm] = useState(initialForm);
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error' | 'resending'>('idle');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const [requestId, setRequestId] = useState('');
-  const [expiresAt, setExpiresAt] = useState<string | null>(null);
-  const [countdown, setCountdown] = useState(0);
-
-  useEffect(() => {
-    if (!expiresAt || countdown <= 0) return;
-    const interval = setInterval(() => {
-      const remaining = Math.max(
-        0,
-        Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000),
-      );
-      setCountdown(remaining);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [expiresAt, countdown]);
-
-  function formatCountdown(seconds: number) {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  }
 
   function updateField(field: keyof RegisterForm, value: string) {
     setForm((currentForm) => ({ ...currentForm, [field]: value }));
-    if (status === 'success') {
+    if (status !== 'idle') {
       setStatus('idle');
       setMessage('');
-      setRequestId('');
     }
   }
 
@@ -59,40 +41,28 @@ export function RegisterPage() {
     setStatus('submitting');
     setMessage('');
 
+    if (form.password !== form.confirmPassword) {
+      setStatus('error');
+      setMessage('Le password non coincidono.');
+      return;
+    }
+
     try {
-      const result = await requestRegistration(form);
+      const result = await requestRegistration({
+        numeroUtenza: form.numeroUtenza,
+        nome: form.nome,
+        cognome: form.cognome,
+        fiscalCode: form.fiscalCode,
+        password: form.password,
+      });
       setStatus('success');
       setMessage(result.message);
-      setRequestId(result.requestId);
-      setExpiresAt(result.expiresAt);
-      setCountdown(Math.floor((new Date(result.expiresAt).getTime() - Date.now()) / 1000));
     } catch (caughtError) {
       setStatus('error');
       setMessage(
         caughtError instanceof Error
           ? caughtError.message
-          : 'Non e stato possibile inviare la richiesta.',
-      );
-    }
-  }
-
-  async function handleResend() {
-    if (!requestId) return;
-    setStatus('resending');
-    setMessage('');
-
-    try {
-      const result = await resendConfirmationCode(requestId);
-      setStatus('success');
-      setMessage(result.message);
-      setExpiresAt(result.expiresAt);
-      setCountdown(Math.floor((new Date(result.expiresAt).getTime() - Date.now()) / 1000));
-    } catch (caughtError) {
-      setStatus('success');
-      setMessage(
-        caughtError instanceof Error
-          ? caughtError.message
-          : 'Non e stato possibile inviare un nuovo codice.',
+          : 'Non e stato possibile creare l account.',
       );
     }
   }
@@ -108,8 +78,8 @@ export function RegisterPage() {
         <div className="login-copy">
           <h1>Richiedi l'accesso al portale clienti.</h1>
           <p>
-            Inserisci il numero utenza e i tuoi dati. Se la ricerca conferma
-            una corrispondenza, riceverai un codice via email.
+            Inserisci numero utenza, cognome e codice fiscale. Se i dati
+            corrispondono, potrai impostare subito la tua password.
           </p>
         </div>
       </section>
@@ -136,10 +106,7 @@ export function RegisterPage() {
                 inputMode="text"
                 value={form.numeroUtenza}
                 onChange={(event) =>
-                  updateField(
-                    "numeroUtenza",
-                    event.target.value.replace(/\s+/g, "")
-                  )
+                  updateField('numeroUtenza', event.target.value.replace(/\s+/g, ''))
                 }
                 placeholder="40010001/2"
                 pattern="^400[0-9]+000[0-9]+(/[0-9]+)*$"
@@ -168,43 +135,53 @@ export function RegisterPage() {
               </label>
             </div>
             <label>
-              Email
+              Codice fiscale
               <input
-                type="email"
-                value={form.email}
-                onChange={(event) => updateField('email', event.target.value)}
-                placeholder="nome@email.com"
+                value={form.fiscalCode}
+                onChange={(event) => updateField('fiscalCode', event.target.value.toUpperCase())}
+                placeholder="Come registrato in archivio"
+                required
+              />
+            </label>
+            <label>
+              Password
+              <input
+                type="password"
+                minLength={8}
+                value={form.password}
+                onChange={(event) => updateField('password', event.target.value)}
+                required
+              />
+            </label>
+            <label>
+              Conferma password
+              <input
+                type="password"
+                minLength={8}
+                value={form.confirmPassword}
+                onChange={(event) => updateField('confirmPassword', event.target.value)}
                 required
               />
             </label>
             {message && (
-              <p className={status === 'success' || status === 'resending' ? 'form-success' : 'form-error'}>{message}</p>
+              <p className={status === 'success' ? 'form-success' : 'form-error'}>{message}</p>
             )}
             <button
               className="primary-button login-submit"
               type="submit"
-              disabled={status === 'submitting' || status === 'success' || status === 'resending'}
+              disabled={status === 'submitting' || status === 'success'}
             >
               <Send size={18} />
               {status === 'submitting'
                 ? 'Verifica in corso...'
-                : status === 'success' || status === 'resending'
-                  ? 'Codice inviato'
-                  : 'Cerca utenza'}
+                : status === 'success'
+                  ? 'Account creato'
+                  : 'Crea account'}
             </button>
-            {(status === 'success' || status === 'resending') && requestId && (
-              <button
-                type="button"
-                className="resend-link"
-                onClick={handleResend}
-                disabled={countdown > 0 || status === 'resending'}
-              >
-                {countdown > 0
-                  ? `Invia codice dopo ${formatCountdown(countdown)}`
-                  : status === 'resending'
-                    ? 'Invio in corso...'
-                    : 'Invia di nuovo il codice'}
-              </button>
+            {status === 'success' && (
+              <Link className="register-button" to="/">
+                Vai al login
+              </Link>
             )}
           </form>
         </div>

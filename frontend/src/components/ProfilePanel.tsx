@@ -1,4 +1,4 @@
-import { Bell, Mail, MapPin, Phone, User } from 'lucide-react';
+import { MapPin, Phone, User } from 'lucide-react';
 import type { Customer } from '../types/portal';
 
 type ProfilePanelProps = {
@@ -6,10 +6,10 @@ type ProfilePanelProps = {
   serviceNotes: string[];
 };
 
-export function ProfilePanel({ customer, serviceNotes }: ProfilePanelProps) {
+export function ProfilePanel({ customer, serviceNotes: _serviceNotes }: ProfilePanelProps) {
   const profileItems = [
     { icon: <User size={17} />, label: 'Intestatario', value: customer.name },
-    { icon: <Mail size={17} />, label: 'Email', value: customer.email },
+    { icon: <Phone size={17} />, label: 'Telefono', value: customer.phone || customer.mobile || 'Non indicato' },
     { icon: <Phone size={17} />, label: 'Cellulare', value: customer.mobile || 'Non indicato' },
     { icon: <MapPin size={17} />, label: 'Indirizzo fornitura', value: customer.address },
   ];

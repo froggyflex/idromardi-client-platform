@@ -28,55 +28,92 @@ const API_BASE_URL =
 
 export type LoginResponse = {
   token: string;
-  email: string;
+  accessIdentifier: string;
+  phone: string;
+  email?: string;
   mustChangePassword: boolean;
 };
 
-export async function login(email: string, password: string): Promise<LoginResponse> {
+export async function login(numeroUtenza: string, password: string): Promise<LoginResponse> {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ numeroUtenza, password }),
   });
 
   const data = (await response.json()) as Partial<LoginResponse> & { message?: string };
 
-  if (!response.ok || !data.token || !data.email) {
+  if (!response.ok || !data.token || !data.accessIdentifier) {
     throw new Error(data.message || 'Accesso non riuscito.');
   }
 
   return {
     token: data.token,
+    accessIdentifier: data.accessIdentifier,
+    phone: data.phone || '',
     email: data.email,
     mustChangePassword: Boolean(data.mustChangePassword),
   };
 }
 
-export async function requestPasswordReset(email: string): Promise<{ message: string; expiresAt: string }> {
+export type PasswordResetRequest = {
+  numeroUtenza: string;
+  cognome: string;
+  fiscalCode: string;
+};
+
+export type PasswordResetVerification = {
+  message: string;
+  resetToken: string;
+  accessIdentifier: string;
+};
+
+export async function verifyPasswordResetIdentity(payload: PasswordResetRequest): Promise<PasswordResetVerification> {
   const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ email }),
+    body: JSON.stringify(payload),
   });
 
-  const data = (await response.json().catch(() => ({}))) as { message?: string; expiresAt?: string };
+  const data = (await response.json().catch(() => ({}))) as Partial<PasswordResetVerification> & { message?: string };
 
-  if (!response.ok) {
-    throw new Error(
-      data.message ||
-        (response.status === 404
-          ? 'Recupero password non disponibile sul server. Riprova tra poco.'
-          : 'Recupero password non riuscito.'),
-    );
+  if (!response.ok || !data.resetToken || !data.accessIdentifier) {
+    throw new Error(data.message || 'Verifica dati non riuscita.');
   }
 
   return {
-    message: data.message || 'Password temporanea inviata via email.',
-    expiresAt: data.expiresAt || '',
+    message: data.message || 'Identita verificata.',
+    resetToken: data.resetToken,
+    accessIdentifier: data.accessIdentifier,
+  };
+}
+
+export async function completePasswordReset(resetToken: string, password: string): Promise<LoginResponse & { message: string }> {
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ resetToken, password }),
+  });
+
+  const data = (await response.json().catch(() => ({}))) as Partial<LoginResponse> & { message?: string };
+
+  if (!response.ok || !data.token || !data.accessIdentifier) {
+    throw new Error(data.message || 'Salvataggio password non riuscito.');
+  }
+
+  return {
+    token: data.token,
+    accessIdentifier: data.accessIdentifier,
+    phone: data.phone || '',
+    email: data.email,
+    mustChangePassword: Boolean(data.mustChangePassword),
+    message: data.message || 'Password aggiornata correttamente.',
   };
 }
 
@@ -104,7 +141,7 @@ export async function exportInvoices(token: string) {
 }
 
 export async function changeTemporaryPassword(
-  email: string,
+  numeroUtenza: string,
   currentPassword: string,
   newPassword: string,
 ): Promise<LoginResponse> {
@@ -113,17 +150,19 @@ export async function changeTemporaryPassword(
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ email, currentPassword, newPassword }),
+    body: JSON.stringify({ numeroUtenza, currentPassword, newPassword }),
   });
 
   const data = (await response.json()) as Partial<LoginResponse> & { message?: string };
 
-  if (!response.ok || !data.token || !data.email) {
+  if (!response.ok || !data.token || !data.accessIdentifier) {
     throw new Error(data.message || 'Cambio password non riuscito.');
   }
 
   return {
     token: data.token,
+    accessIdentifier: data.accessIdentifier,
+    phone: data.phone || '',
     email: data.email,
     mustChangePassword: Boolean(data.mustChangePassword),
   };
@@ -174,12 +213,11 @@ export type RegistrationRequest = {
   numeroUtenza: string;
   nome: string;
   cognome: string;
-  email: string;
+  fiscalCode: string;
+  password: string;
 };
 
-export async function requestRegistration(
-  payload: RegistrationRequest,
-): Promise<{ message: string; requestId: string; expiresAt: string }> {
+export async function requestRegistration(payload: RegistrationRequest): Promise<{ message: string; accessIdentifier: string }> {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
@@ -193,7 +231,7 @@ export async function requestRegistration(
       signal: controller.signal,
     });
 
-    const data = (await response.json()) as { message?: string; requestId?: string; expiresAt?: string };
+    const data = (await response.json()) as { message?: string; accessIdentifier?: string };
 
     if (!response.ok) {
       throw new Error(data.message || 'Registrazione non riuscita.');
@@ -201,8 +239,7 @@ export async function requestRegistration(
 
     return {
       message: data.message || 'Richiesta inviata correttamente.',
-      requestId: data.requestId || '',
-      expiresAt: data.expiresAt || '',
+      accessIdentifier: data.accessIdentifier || '',
     };
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
@@ -213,22 +250,4 @@ export async function requestRegistration(
   } finally {
     window.clearTimeout(timeoutId);
   }
-}
-
-export async function resendConfirmationCode(requestId: string): Promise<{ message: string; expiresAt: string }> {
-  const response = await fetch(`${API_BASE_URL}/registration/resend`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ requestId }),
-  });
-
-  const data = (await response.json()) as { message?: string; expiresAt?: string };
-
-  if (!response.ok) {
-    throw new Error(data.message || 'Invio codice non riuscito.');
-  }
-
-  return { message: data.message || 'Nuovo codice inviato.', expiresAt: data.expiresAt || '' };
 }

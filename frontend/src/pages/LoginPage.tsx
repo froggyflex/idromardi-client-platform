@@ -1,28 +1,56 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { ArrowLeft, Droplets, Mail, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Droplets, KeyRound, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '../components/BrandLogo';
-import { login, requestPasswordReset } from '../services/api';
+import { completePasswordReset, login, verifyPasswordResetIdentity } from '../services/api';
 import type { LoginResponse } from '../services/api';
 
 type LoginPageProps = {
   onLogin: (session: LoginResponse) => void;
 };
 
+type ResetForm = {
+  numeroUtenza: string;
+  cognome: string;
+  fiscalCode: string;
+};
+
+const initialResetForm: ResetForm = {
+  numeroUtenza: '',
+  cognome: '',
+  fiscalCode: '',
+};
+
 export function LoginPage({ onLogin }: LoginPageProps) {
-  const [email, setEmail] = useState('cliente@email.com');
-  const [password, setPassword] = useState('demo1234');
+  const [numeroUtenza, setNumeroUtenza] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isResetMode, setIsResetMode] = useState(false);
-  const [resetEmail, setResetEmail] = useState(email);
+  const [resetForm, setResetForm] = useState(initialResetForm);
+  const [resetStep, setResetStep] = useState<'identity' | 'password'>('identity');
+  const [resetToken, setResetToken] = useState('');
+  const [verifiedAccessIdentifier, setVerifiedAccessIdentifier] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const [resetStatus, setResetStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const navigate = useNavigate();
 
+  function updateResetField(field: keyof ResetForm, value: string) {
+    setResetForm((current) => ({ ...current, [field]: value }));
+    setResetStatus('idle');
+    setResetMessage('');
+  }
+
   function openResetMode() {
     setIsResetMode(true);
-    setResetEmail(email);
+    setResetForm((current) => ({ ...current, numeroUtenza }));
+    setResetStep('identity');
+    setResetToken('');
+    setVerifiedAccessIdentifier('');
+    setNewPassword('');
+    setConfirmPassword('');
     setResetMessage('');
     setResetStatus('idle');
     setError('');
@@ -30,25 +58,51 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   function closeResetMode() {
     setIsResetMode(false);
+    setResetStep('identity');
     setResetMessage('');
     setResetStatus('idle');
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
+    setError('');
 
     try {
-      const session = await login(email, password);
- 
+      const session = await login(numeroUtenza, password);
       onLogin(session);
-
-      navigate(session.mustChangePassword ? "/cambia-password" : "/portal");
+      navigate(session.mustChangePassword ? '/cambia-password' : '/portal');
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Accesso non riuscito."
+          : 'Accesso non riuscito.',
+      );
+    }
+  }
+
+  async function handlePasswordResetIdentity(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setResetMessage('');
+
+    setResetStatus('submitting');
+
+    try {
+      const result = await verifyPasswordResetIdentity({
+        numeroUtenza: resetForm.numeroUtenza,
+        cognome: resetForm.cognome,
+        fiscalCode: resetForm.fiscalCode,
+      });
+      setResetStatus('success');
+      setResetMessage(result.message);
+      setResetToken(result.resetToken);
+      setVerifiedAccessIdentifier(result.accessIdentifier);
+      setResetStep('password');
+    } catch (caughtError) {
+      setResetStatus('error');
+      setResetMessage(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Verifica dati non riuscita.',
       );
     }
   }
@@ -56,24 +110,33 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   async function handlePasswordReset(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setResetMessage('');
+
+    if (newPassword !== confirmPassword) {
+      setResetStatus('error');
+      setResetMessage('Le password non coincidono.');
+      return;
+    }
+
     setResetStatus('submitting');
 
     try {
-      const result = await requestPasswordReset(resetEmail);
+      const session = await completePasswordReset(resetToken, newPassword);
       setResetStatus('success');
-      setResetMessage(`${result.message} Accedi usando il codice ricevuto come password temporanea.`);
-      setEmail(resetEmail);
+      setResetMessage(session.message);
+      setNumeroUtenza(session.accessIdentifier);
       setPassword('');
+      onLogin(session);
+      navigate('/portal');
     } catch (caughtError) {
       setResetStatus('error');
       setResetMessage(
         caughtError instanceof Error
           ? caughtError.message
-          : 'Recupero password non riuscito.'
+          : 'Salvataggio password non riuscito.',
       );
     }
   }
-  
+
   return (
     <main className="login-page">
       <div className="login-shell">
@@ -85,9 +148,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           <BrandLogo className="login-logo" />
           <div className="login-copy">
             <h1>Un accesso semplice ai consumi, alle fatture e al profilo.</h1>
-            <p>
-                Hai domande? Siamo disponibili anche su instagram #idromardi_servizi
-            </p>
+            <p>Hai domande? Siamo disponibili anche su instagram #idromardi_servizi</p>
           </div>
           <div className="usage-panel">
             <div>
@@ -112,29 +173,84 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         <section className="login-panel" aria-label="Accesso al portale">
           <div className="login-card">
             <span className="login-icon">
-              {isResetMode ? <Mail size={24} /> : <Droplets size={24} />}
+              {isResetMode ? <KeyRound size={24} /> : <Droplets size={24} />}
             </span>
             <div>
               <h2>{isResetMode ? 'Recupera password' : 'Accedi al portale'}</h2>
               <p>
                 {isResetMode
-                  ? "Inserisci l'email collegata al portale. Ti invieremo una password temporanea."
-                  : 'Inserisci le credenziali per consultare consumi, fatture e dettagli del contratto.'}
+                  ? resetStep === 'identity'
+                    ? 'Verifica la tua identita con i dati utenza. Dopo il controllo potrai impostare una nuova password.'
+                    : 'Identita verificata. Imposta ora la nuova password.'
+                  : 'Inserisci numero utenza e password per consultare consumi, fatture e dettagli del contratto.'}
               </p>
             </div>
 
             {isResetMode ? (
-              <form className="reset-form" onSubmit={handlePasswordReset}>
-                <label>
-                  Email registrata
-                  <input
-                    type="email"
-                    value={resetEmail}
-                    onChange={(event) => setResetEmail(event.target.value)}
-                    placeholder="cliente@email.com"
-                    required
-                  />
-                </label>
+              <form
+                className="reset-form"
+                onSubmit={resetStep === 'identity' ? handlePasswordResetIdentity : handlePasswordReset}
+              >
+                {resetStep === 'identity' ? (
+                  <>
+                    <label>
+                      Numero utenza
+                      <input
+                        inputMode="text"
+                        value={resetForm.numeroUtenza}
+                        onChange={(event) =>
+                          updateResetField('numeroUtenza', event.target.value.replace(/\s+/g, ''))
+                        }
+                        placeholder="40010001/2"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Cognome
+                      <input
+                        value={resetForm.cognome}
+                        onChange={(event) => updateResetField('cognome', event.target.value)}
+                        placeholder="Rossi"
+                        required
+                      />
+                    </label>
+                    <label>
+                      Codice fiscale
+                      <input
+                        value={resetForm.fiscalCode}
+                        onChange={(event) => updateResetField('fiscalCode', event.target.value.toUpperCase())}
+                        placeholder="Come registrato in archivio"
+                        required
+                      />
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <p className="form-message form-message-success">
+                      Utenza verificata: {verifiedAccessIdentifier}
+                    </p>
+                    <label>
+                      Nuova password
+                      <input
+                        type="password"
+                        minLength={8}
+                        value={newPassword}
+                        onChange={(event) => setNewPassword(event.target.value)}
+                        required
+                      />
+                    </label>
+                    <label>
+                      Conferma password
+                      <input
+                        type="password"
+                        minLength={8}
+                        value={confirmPassword}
+                        onChange={(event) => setConfirmPassword(event.target.value)}
+                        required
+                      />
+                    </label>
+                  </>
+                )}
                 {resetMessage && (
                   <p
                     className={`form-message ${
@@ -149,8 +265,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                   type="submit"
                   disabled={resetStatus === 'submitting'}
                 >
-                  <Mail size={18} />
-                  {resetStatus === 'submitting' ? 'Invio...' : 'Invia password temporanea'}
+                  <KeyRound size={18} />
+                  {resetStatus === 'submitting'
+                    ? resetStep === 'identity'
+                      ? 'Verifica...'
+                      : 'Salvataggio...'
+                    : resetStep === 'identity'
+                      ? 'Verifica dati'
+                      : 'Salva nuova password'}
                 </button>
                 <button className="ghost-button login-submit" type="button" onClick={closeResetMode}>
                   <ArrowLeft size={18} />
@@ -161,12 +283,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               <>
                 <form onSubmit={handleSubmit}>
                   <label>
-                    Email
+                    Numero utenza
                     <input
-                      type="email"
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                      placeholder="cliente@email.com"
+                      inputMode="text"
+                      value={numeroUtenza}
+                      onChange={(event) => setNumeroUtenza(event.target.value.replace(/\s+/g, ''))}
+                      placeholder="40010001/2"
                       required
                     />
                   </label>

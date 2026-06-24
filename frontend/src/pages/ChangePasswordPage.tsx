@@ -6,11 +6,11 @@ import { changeTemporaryPassword } from '../services/api';
 import type { LoginResponse } from '../services/api';
 
 type ChangePasswordPageProps = {
-  email: string;
+  accessIdentifier: string;
   onPasswordChanged: (session: LoginResponse) => void;
 };
 
-export function ChangePasswordPage({ email, onPasswordChanged }: ChangePasswordPageProps) {
+export function ChangePasswordPage({ accessIdentifier, onPasswordChanged }: ChangePasswordPageProps) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,7 +30,7 @@ export function ChangePasswordPage({ email, onPasswordChanged }: ChangePasswordP
     setStatus('submitting');
 
     try {
-      const session = await changeTemporaryPassword(email, currentPassword, newPassword);
+      const session = await changeTemporaryPassword(accessIdentifier, currentPassword, newPassword);
       onPasswordChanged(session);
       window.location.href = '/portal';
     } catch (caughtError) {
@@ -51,7 +51,7 @@ export function ChangePasswordPage({ email, onPasswordChanged }: ChangePasswordP
           <div className="login-copy">
             <h1>Imposta la tua password personale.</h1>
             <p>
-              Il codice ricevuto via email e una password temporanea. Per
+              La password temporanea ricevuta in precedenza deve essere sostituita. Per
               continuare devi sostituirla con una password personale.
             </p>
           </div>
@@ -63,7 +63,7 @@ export function ChangePasswordPage({ email, onPasswordChanged }: ChangePasswordP
             </span>
             <div>
               <h2>Cambia password</h2>
-              <p>Account: {email}</p>
+              <p>Utenza: {accessIdentifier}</p>
             </div>
             <form onSubmit={handleSubmit}>
               <label>

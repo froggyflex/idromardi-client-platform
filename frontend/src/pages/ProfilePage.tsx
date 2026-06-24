@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Mail, MapPin, Phone, Save, User } from "lucide-react";
+import { MapPin, Phone, Save, User } from "lucide-react";
 import { getCurrentPortalUser, updatePortalProfile } from "../services/api";
 import type { PortalData, PortalProfileUpdate } from "../types/portal";
 
@@ -119,11 +119,11 @@ export function ProfilePage() {
 
             <div className="profile-item">
               <span>
-                <Mail size={17} />
+                <User size={17} />
               </span>
               <div>
-                <small>Email accesso</small>
-                <strong>{customer.email}</strong>
+                <small>Account portale</small>
+                <strong>{customer.accountNo}</strong>
               </div>
             </div>
 
