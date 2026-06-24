@@ -59,7 +59,7 @@ export type PortalData = {
 
   latestInvoice: Invoice | null;   
   invoices: Invoice[];             
-  billDocumentRows: [];
+  billDocumentRows: InvoiceEmitted[];
   readings: Reading[];
   serviceNotes: string[];
 };

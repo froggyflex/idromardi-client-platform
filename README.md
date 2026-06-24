@@ -63,7 +63,15 @@ DB_NAME=idromardi
 DB_PORT=3306
 NUMERO_UTENZA_PREFIX=400
 NUMERO_UTENZA_USER_DIGITS=4
+PUBLIC_DOCUMENTS_BASE_URL=https://pub-88533bf9f0424d64ba01c1a996f49c0e.r2.dev
+PUBLIC_DOCUMENTS_OBJECT_PREFIX=generated-documents
 ```
+
+`PUBLIC_DOCUMENTS_BASE_URL` must point to the public Cloudflare/R2 documents base URL when
+`ripartizione_pdfs.filepath` stores only an object path or filename. If `filepath` already stores
+the full `https://...` document URL, this setting is not required.
+`PUBLIC_DOCUMENTS_OBJECT_PREFIX` maps legacy local paths like `/storage/ripartizioni/.../file.pdf`
+to the R2 folder where the objects actually exist.
 
 ## Backend
 
@@ -80,11 +88,12 @@ Payload:
   "numeroUtenza": "40010001",
   "nome": "Mario",
   "cognome": "Rossi",
-  "email": "mario@email.com"
+  "fiscalCode": "RSSMRA80A01H501U",
+  "password": "password-sicura"
 }
 ```
 
-The current service searches `utenze_v2` joined with `condomini_v2`. The parsed condominio code from `numeroUtenza` matches `condomini_v2.codice`; `utenze_v2.condominio_id` links to `condomini_v2.id`; active users are filtered with `u.Stato = 'ATTIVA'`. The matched row returns `Interno`; the user does not enter `Interno`. The email is supplied by the user and used for sending the confirmation code.
+The current service searches `utenze_v2` joined with `condomini_v2`. The parsed condominio code from `numeroUtenza` matches `condomini_v2.codice`; `utenze_v2.condominio_id` links to `condomini_v2.id`; active users are filtered with `u.Stato = 'ATTIVA'`. The account is created immediately only when numero utenza, cognome and codice fiscale match the database.
 
 Create the registration tables with:
 
@@ -94,7 +103,7 @@ SOURCE backend/database/001_registration_tables.sql;
 
 Tables:
 
-- `registration_confirmation_codes`: temporary email confirmation requests and hashed codes.
+- `registration_confirmation_codes`: legacy temporary confirmation requests.
 - `activated_portal_users`: confirmed portal users linked to `utenze`.
 
 Numero utenza parsing:
@@ -108,7 +117,7 @@ Numero utenza parsing:
 
 ## Accesso Demo
 
-Usa qualsiasi email e password nella schermata di accesso. L'autenticazione e simulata nello stato React locale, cosi il portale puo essere collegato in seguito a una vera API.
+Usa il numero utenza e la password nella schermata di accesso.
 
 ## Deploy
 
@@ -217,6 +226,7 @@ docker exec -i idromardi-v2-db-1 mysql -uroot -prootpassword miteamx1_fatturazio
 docker exec -i idromardi-v2-db-1 mysql -uroot -prootpassword miteamx1_fatturazione < backend/database/004_drop_redundant_portal_profile_fields.sql
 docker exec -i idromardi-v2-db-1 mysql -uroot -prootpassword miteamx1_fatturazione < backend/database/005_add_resend_count_to_registration_codes.sql
 docker exec -i idromardi-v2-db-1 mysql -uroot -prootpassword miteamx1_fatturazione < backend/database/006_fix_id_auto_type.sql
+docker exec -i idromardi-v2-db-1 mysql -uroot -prootpassword miteamx1_fatturazione < backend/database/008_use_numero_utenza_login.sql
 ```
 
 ### Inspect Table Structure
@@ -245,16 +255,13 @@ DB_PORT=3306
 
 NUMERO_UTENZA_PREFIX=400
 NUMERO_UTENZA_USER_DIGITS=4
+PUBLIC_DOCUMENTS_BASE_URL=https://pub-88533bf9f0424d64ba01c1a996f49c0e.r2.dev
+PUBLIC_DOCUMENTS_OBJECT_PREFIX=generated-documents
 
 HTTP_RESPONSE_TIMEOUT_MS=15000
 DB_CONNECT_TIMEOUT_MS=8000
 
-SMTP_HOST=smtps.aruba.it
-SMTP_PORT=587
-SMTP_SECURE=true
-SMTP_USER=noreply@idromardi.it
-SMTP_PASS=
-EMAIL_FROM=noreply@idromardi.it
+# Registration and password reset do not require external messaging credentials.
 ```
 
 ### Frontend (.env)
@@ -269,9 +276,7 @@ VITE_API_BASE_URL=/api
 |----------|-------------|-------|
 | `DB_HOST` | `host.docker.internal` | Host machine MySQL |
 | `DB_NAME` | `miteamx1_fatturazione` | Dev database name |
-| `SMTP_HOST` | `smtps.aruba.it` | Aruba SMTP |
-| `SMTP_PORT` | `587` | STARTTLS port |
-| `SMTP_SECURE` | `true` | Use SSL (try `false` if connection fails) |
+Registration and password reset do not require external messaging credentials.
 
 ## Database Operations
 
@@ -281,22 +286,21 @@ Remove a user from the portal and clear their pending registration codes:
 
 ```sql
 -- Delete from activated_portal_users
-DELETE FROM activated_portal_users WHERE email = 'user@example.com';
+DELETE FROM activated_portal_users WHERE access_identifier = '40010001';
 
 -- Delete pending registration codes
-DELETE FROM registration_confirmation_codes WHERE email = 'user@example.com';
+DELETE FROM registration_confirmation_codes WHERE request_id = 'uuid-here';
 ```
 
 Via Docker:
 ```bash
-docker exec idromardi-v2-db-1 mysql -uroot -prootpassword miteamx1_fatturazione -e "DELETE FROM activated_portal_users WHERE email = 'user@example.com'; DELETE FROM registration_confirmation_codes WHERE email = 'user@example.com';"
+docker exec idromardi-v2-db-1 mysql -uroot -prootpassword miteamx1_fatturazione -e "DELETE FROM activated_portal_users WHERE access_identifier = '40010001';"
 ```
 
 ### Check User Exists
 
 ```sql
-SELECT * FROM activated_portal_users WHERE email = 'user@example.com';
-SELECT * FROM registration_confirmation_codes WHERE email = 'user@example.com';
+SELECT * FROM activated_portal_users WHERE access_identifier = '40010001';
 ```
 
 ## Registration Flow
@@ -306,7 +310,6 @@ SELECT * FROM registration_confirmation_codes WHERE email = 'user@example.com';
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/registration/request` | POST | Request registration code |
-| `/api/registration/resend` | POST | Resend confirmation code |
 
 ### Request Payload
 
@@ -315,7 +318,8 @@ SELECT * FROM registration_confirmation_codes WHERE email = 'user@example.com';
   "numeroUtenza": "40010001",
   "nome": "Mario",
   "cognome": "Rossi",
-  "email": "mario@email.com"
+  "fiscalCode": "RSSMRA80A01H501U",
+  "password": "password-sicura"
 }
 ```
 
@@ -323,18 +327,10 @@ SELECT * FROM registration_confirmation_codes WHERE email = 'user@example.com';
 
 ```json
 {
-  "message": "Utenza trovata. Ti abbiamo inviato un codice via email per confermare la registrazione.",
-  "requestId": "uuid-here",
-  "expiresAt": "2026-04-22T23:00:00.000Z"
+  "message": "Account creato correttamente. Ora puoi accedere con il numero utenza e la password scelta.",
+  "accessIdentifier": "40010001"
 }
 ```
-
-### Code Validity
-
-- Code expires 15 minutes after sending
-- Frontend shows countdown timer: `"Invia codice dopo 14:59"`
-- Resend button disabled until countdown reaches 0
-- Maximum 3 resends per request
 
 ### Numero Utenza Format
 

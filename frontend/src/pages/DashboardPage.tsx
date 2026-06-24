@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Droplets, FileText, Gauge, WalletCards } from 'lucide-react';
-import { ConsumptionChart } from '../components/ConsumptionChart';
+import { Droplets, FileText, Gauge } from 'lucide-react';
 import { ChatWidget } from "../components/ChatWidget";
 import { InvoiceTable } from '../components/InvoiceTable';
 import { MetricCard } from '../components/MetricCard';
@@ -9,77 +8,6 @@ import { getCurrentPortalUser } from '../services/api';
 import type { PortalData } from '../types/portal';
 
 import { exportInvoices } from "../services/api";
-
-
-
-const mockInvoices = [
-  {
-    id: "FT-2025-001",
-    period: "gennaio 2025",
-    issued: "02 gen 2025",
-    due: "24 gen 2025",
-    consumption: 96,
-    amount: 114.1,
-    status: "Calcolata",
-    readingPrevious: 7780,
-    readingCurrent: 7876,
-  },
-  {
-    id: "FT-2024-012",
-    period: "dicembre 2024",
-    issued: "03 dic 2024",
-    due: "23 dic 2024",
-    consumption: 72,
-    amount: 89.5,
-    status: "Pagata",
-    readingPrevious: 7708,
-    readingCurrent: 7780,
-  },
-  {
-    id: "FT-2024-011",
-    period: "novembre 2024",
-    issued: "02 nov 2024",
-    due: "22 nov 2024",
-    consumption: 58,
-    amount: 70.2,
-    status: "Pagata",
-    readingPrevious: 7650,
-    readingCurrent: 7708,
-  },
-  {
-    id: "FT-2024-010",
-    period: "ottobre 2024",
-    issued: "02 ott 2024",
-    due: "22 ott 2024",
-    consumption: 110,
-    amount: 130.8,
-    status: "Calcolata",
-    readingPrevious: 7540,
-    readingCurrent: 7650,
-  },
-  {
-    id: "FT-2024-009",
-    period: "settembre 2024",
-    issued: "02 set 2024",
-    due: "22 set 2024",
-    consumption: 0, // edge case
-    amount: 25.0,
-    status: "Pagata",
-    readingPrevious: 7540,
-    readingCurrent: 7540,
-  },
-  {
-    id: "FT-2024-008",
-    period: "agosto 2024",
-    issued: "02 ago 2024",
-    due: null, // edge case
-    consumption: 45,
-    amount: 60.3,
-    status: "Annullata",
-    readingPrevious: 7495,
-    readingCurrent: 7540,
-  },
-];
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('it-IT', {
@@ -186,10 +114,6 @@ const averageUsage = useMemo(() => {
             Il contatore {data.customer.meterNo === "0000" ? "" : data.customer.meterNo} risulta collegato come {data.customer.tariff}.
           </span>
         </div>
-        {/* <button className="primary-button" type="button" id="payments">
-          <WalletCards size={18} />
-          Paga fattura
-        </button> */}
       </header>
 
       <section className="metrics-grid" aria-label="Riepilogo utenza">
@@ -215,7 +139,6 @@ const averageUsage = useMemo(() => {
 
       <div className="content-grid">
         <div className="main-column">
-          {/* <ConsumptionChart invoices={mockInvoices} /> */}
           <InvoiceTable invoices={data?.billDocumentRows} onExportAll={handleExportAll} />
         </div>
         <ProfilePanel

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, FileText, ReceiptText, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, ReceiptText, Search } from "lucide-react";
 import type { InvoiceEmitted } from "../types/portal";
 
 type InvoiceTableProps = {
@@ -39,7 +39,7 @@ function getPeriodSortValue(period: string) {
   return year * 100 + month;
 }
 
-export function InvoiceTable({ invoices, onExportAll }: InvoiceTableProps) {
+export function InvoiceTable({ invoices }: InvoiceTableProps) {
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -103,11 +103,6 @@ export function InvoiceTable({ invoices, onExportAll }: InvoiceTableProps) {
 
   const currentPage = Math.min(page, totalPages);
 
-  const pagedInvoices = filteredInvoices.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  );
-
   console.log("Invoices after filtering and sorting:", filteredInvoices);
   function handleSearch(value: string) {
     setSearch(value);
@@ -122,10 +117,6 @@ export function InvoiceTable({ invoices, onExportAll }: InvoiceTableProps) {
           <h2>Bollette disponibili</h2>
         </div>
 
-        {/* <button className="secondary-button" type="button" onClick={onExportAll}>
-          <FileText size={17} />
-          Esporta tutte
-        </button> */}
       </div>
 
       <div className="invoice-table-toolbar">
@@ -213,7 +204,6 @@ export function InvoiceTable({ invoices, onExportAll }: InvoiceTableProps) {
                             href={invoice.fileUrl}
                             target="_blank"
                             rel="noreferrer"
-                            download
                           >
                             <Download size={16} />
                             Scarica PDF
