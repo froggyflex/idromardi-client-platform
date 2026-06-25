@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const pool = require('../config/db');
 const { hashPassword } = require('../utils/passwordHash');
+const { normalizePhone } = require('../utils/registrationValidation');
 
 function parseNumeroUtenza(numeroUtenza) {
   const prefix = process.env.NUMERO_UTENZA_PREFIX || '400';
@@ -43,6 +44,9 @@ async function findMatchingUser(payload) {
   const nome = String(payload.nome || '').trim();
   const cognome = String(payload.cognome || '').trim();
   const fiscalCode = String(payload.fiscalCode || '').trim().toUpperCase();
+  const inputInterno = normalizeComparable(payload.interno);
+  const inputMeterSerial = normalizeComparable(payload.meterSerial);
+  const inputMobile = normalizePhone(payload.mobile);
 
   const [rows] = await pool.execute(
     `
@@ -53,6 +57,8 @@ async function findMatchingUser(payload) {
         u.Interno,
         u.Nome,
         u.Cognome,
+        u.Mobile,
+        u.Matricola_Contatore,
         u.C_F,
         u.Stato AS Status
       FROM utenze_v2 u
@@ -81,18 +87,62 @@ async function findMatchingUser(payload) {
     (row) => String(row.Cognome || '').trim().toLowerCase() === cognome.toLowerCase(),
   );
 
-  const hasFiscalCodeMatch = rows.some(
-    (row) => String(row.C_F || '').trim().replace(/\s/g, '').toUpperCase() === fiscalCode,
-  );
+  const storedFiscalCodes = rows
+    .map((row) => String(row.C_F || '').trim().replace(/\s/g, '').toUpperCase())
+    .filter(Boolean);
+  const hasStoredFiscalCode = storedFiscalCodes.length > 0;
+  const hasFiscalCodeMatch = storedFiscalCodes.includes(fiscalCode);
+  const fallbackScore = getFallbackIdentityScore(rows, {
+    interno: inputInterno,
+    meterSerial: inputMeterSerial,
+    mobile: inputMobile,
+  });
+  const hasFallbackIdentityMatch = !hasStoredFiscalCode && fallbackScore >= 2;
 
-  if (!allNamesMatch || !allSurnamesMatch || !hasFiscalCodeMatch) return null;
+  if (!allNamesMatch || !allSurnamesMatch) return null;
+
+  if (hasStoredFiscalCode && !hasFiscalCodeMatch) return null;
+
+  if (!hasStoredFiscalCode && !hasFallbackIdentityMatch) return null;
 
   return {
     idCondominio,
     userIds,
     users: rows,
     primaryUser: rows[0],
+    identityMode: hasStoredFiscalCode ? 'fiscal_code' : 'fallback_fields',
   };
+}
+
+function normalizeComparable(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, '')
+    .toUpperCase();
+}
+
+function getFallbackIdentityScore(rows, input) {
+  let score = 0;
+
+  if (
+    input.meterSerial &&
+    rows.some((row) => normalizeComparable(row.Matricola_Contatore) === input.meterSerial)
+  ) {
+    score += 2;
+  }
+
+  if (
+    input.mobile.length >= 6 &&
+    rows.some((row) => normalizePhone(row.Mobile).endsWith(input.mobile))
+  ) {
+    score += 2;
+  }
+
+  if (input.interno && rows.some((row) => normalizeComparable(row.Interno) === input.interno)) {
+    score += rows.length === 1 ? 2 : 1;
+  }
+
+  return score;
 }
 
 async function assertAccessIdentifierAvailable(accessIdentifier) {

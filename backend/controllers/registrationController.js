@@ -15,7 +15,7 @@ async function requestRegistration(req, res, next) {
     if (!matchedUser) {
       return res.status(404).json({
         message:
-          'Non abbiamo trovato una corrispondenza con i dati inseriti. Verifica numero utenza, cognome e codice fiscale.',
+          'Non abbiamo trovato una corrispondenza con i dati inseriti. Se il codice fiscale non e presente in archivio, inserisci anche interno, matricola contatore o cellulare.',
       });
     }
 

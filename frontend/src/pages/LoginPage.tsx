@@ -14,12 +14,18 @@ type ResetForm = {
   numeroUtenza: string;
   cognome: string;
   fiscalCode: string;
+  interno: string;
+  meterSerial: string;
+  mobile: string;
 };
 
 const initialResetForm: ResetForm = {
   numeroUtenza: '',
   cognome: '',
   fiscalCode: '',
+  interno: '',
+  meterSerial: '',
+  mobile: '',
 };
 
 export function LoginPage({ onLogin }: LoginPageProps) {
@@ -91,6 +97,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         numeroUtenza: resetForm.numeroUtenza,
         cognome: resetForm.cognome,
         fiscalCode: resetForm.fiscalCode,
+        interno: resetForm.interno,
+        meterSerial: resetForm.meterSerial,
+        mobile: resetForm.mobile,
       });
       setResetStatus('success');
       setResetMessage(result.message);
@@ -219,8 +228,35 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                       <input
                         value={resetForm.fiscalCode}
                         onChange={(event) => updateResetField('fiscalCode', event.target.value.toUpperCase())}
-                        placeholder="Come registrato in archivio"
+                        placeholder="Il tuo codice fiscale"
                         required
+                      />
+                    </label>
+                    <div className="form-grid">
+                      <label>
+                        Interno <span className="optional-label">opzionale</span>
+                        <input
+                          value={resetForm.interno}
+                          onChange={(event) => updateResetField('interno', event.target.value)}
+                          placeholder="Es. 4B"
+                        />
+                      </label>
+                      <label>
+                        Cellulare <span className="optional-label">opzionale</span>
+                        <input
+                          inputMode="tel"
+                          value={resetForm.mobile}
+                          onChange={(event) => updateResetField('mobile', event.target.value)}
+                          placeholder="Es. 370..."
+                        />
+                      </label>
+                    </div>
+                    <label>
+                      Matricola contatore <span className="optional-label">opzionale</span>
+                      <input
+                        value={resetForm.meterSerial}
+                        onChange={(event) => updateResetField('meterSerial', event.target.value)}
+                        placeholder="Se disponibile"
                       />
                     </label>
                   </>

@@ -12,12 +12,25 @@ function normalizeFiscalCode(value) {
     .toUpperCase();
 }
 
+function normalizeOptionalText(value) {
+  return String(value || '').trim();
+}
+
+function normalizePhone(value) {
+  return String(value || '').replace(/\D/g, '');
+}
+
 function normalizeRegistrationPayload(body) {
   return {
     numeroUtenza: normalizeAccessIdentifier(body.numeroUtenza),
     nome: String(body.nome || '').trim(),
     cognome: String(body.cognome || '').trim(),
     fiscalCode: normalizeFiscalCode(body.fiscalCode || body.codiceFiscale || body.cf),
+    interno: normalizeOptionalText(body.interno),
+    meterSerial: normalizeOptionalText(
+      body.meterSerial || body.matricolaContatore || body.matricola || body.contatore,
+    ),
+    mobile: normalizePhone(body.mobile || body.cellulare || body.phone || body.telefono),
     password: String(body.password || ''),
   };
 }
@@ -56,6 +69,7 @@ module.exports = {
   normalizeAccessIdentifier,
   normalizeFiscalCode,
   normalizeRegistrationPayload,
+  normalizePhone,
   validateIdentityPayload,
   validateRegistrationPayload,
 };

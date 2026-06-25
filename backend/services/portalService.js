@@ -341,15 +341,55 @@ async function resolveDocumentUrl(row) {
   const objectPath = buildDocumentObjectPath(row);
   const folderPrefix = objectPath.split("/").slice(0, -1).join("/");
   const documentStem = getDocumentStem(row);
+  const documentsPrefix = trimLeadingSlash(DOCUMENTS_OBJECT_PREFIX).replace(/\/+$/, "");
+  const condominioSearchPrefix =
+    documentsPrefix && row.condominio_id
+      ? `${documentsPrefix}/${trimLeadingSlash(row.condominio_id)}/`
+      : "";
+
+  if (/^https?:\/\//i.test(String(row.filepath || ""))) {
+    return fallbackUrl;
+  }
 
   if (!folderPrefix || !documentStem || !DOCUMENTS_BASE_URL) {
     return fallbackUrl;
   }
 
   const keys = await listR2ObjectKeys(`${folderPrefix}/`);
-  const matchedKey = keys.find((key) => getPathFileName(key).includes(documentStem));
+  let matchedKey = keys.find((key) => getPathFileName(key).includes(documentStem));
 
-  return matchedKey ? buildPublicDocumentUrl(matchedKey) : fallbackUrl;
+  if (!matchedKey && condominioSearchPrefix) {
+    const condominioKeys = await listR2ObjectKeys(condominioSearchPrefix);
+    matchedKey = condominioKeys.find((key) => {
+      const normalizedKey = trimLeadingSlash(key);
+
+      return (
+        normalizedKey.includes(`/${trimLeadingSlash(DOCUMENTS_USER_FOLDER)}/`) &&
+        getPathFileName(normalizedKey).includes(documentStem)
+      );
+    });
+  }
+
+  if (matchedKey) {
+    return buildPublicDocumentUrl(matchedKey);
+  }
+
+  if (DOCUMENTS_BASE_URL && R2_BUCKET && R2_ENDPOINT) {
+    console.warn("R2 document not resolved", {
+      documentId: row.id,
+      condominioId: row.condominio_id,
+      periodKey: row.period_key,
+      documentStem,
+      folderPrefix,
+      condominioSearchPrefix,
+      hasAccessKey: Boolean(R2_ACCESS_KEY_ID),
+      hasSecretKey: Boolean(R2_SECRET_ACCESS_KEY),
+    });
+
+    return null;
+  }
+
+  return fallbackUrl;
 }
 
 function mapInvoiceRow(row) {

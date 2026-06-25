@@ -876,6 +876,12 @@ label {
   font-weight: 800;
 }
 
+.optional-label {
+  color: #667085;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 input {
   width: 100%;
   border: 1px solid #d9e2ef;

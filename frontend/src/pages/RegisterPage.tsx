@@ -10,6 +10,9 @@ type RegisterForm = {
   nome: string;
   cognome: string;
   fiscalCode: string;
+  interno: string;
+  meterSerial: string;
+  mobile: string;
   password: string;
   confirmPassword: string;
 };
@@ -19,6 +22,9 @@ const initialForm: RegisterForm = {
   nome: '',
   cognome: '',
   fiscalCode: '',
+  interno: '',
+  meterSerial: '',
+  mobile: '',
   password: '',
   confirmPassword: '',
 };
@@ -53,6 +59,9 @@ export function RegisterPage() {
         nome: form.nome,
         cognome: form.cognome,
         fiscalCode: form.fiscalCode,
+        interno: form.interno,
+        meterSerial: form.meterSerial,
+        mobile: form.mobile,
         password: form.password,
       });
       setStatus('success');
@@ -78,8 +87,8 @@ export function RegisterPage() {
         <div className="login-copy">
           <h1>Richiedi l'accesso al portale clienti.</h1>
           <p>
-            Inserisci numero utenza, cognome e codice fiscale. Se i dati
-            corrispondono, potrai impostare subito la tua password.
+            Inserisci i dati utenza. Se il codice fiscale non e presente in
+            archivio, useremo anche interno, matricola o cellulare per la verifica.
           </p>
         </div>
       </section>
@@ -139,8 +148,35 @@ export function RegisterPage() {
               <input
                 value={form.fiscalCode}
                 onChange={(event) => updateField('fiscalCode', event.target.value.toUpperCase())}
-                placeholder="Come registrato in archivio"
+                placeholder="Il tuo codice fiscale"
                 required
+              />
+            </label>
+            <div className="form-grid">
+              <label>
+                Interno <span className="optional-label">opzionale</span>
+                <input
+                  value={form.interno}
+                  onChange={(event) => updateField('interno', event.target.value)}
+                  placeholder="Es. 4B"
+                />
+              </label>
+              <label>
+                Cellulare <span className="optional-label">opzionale</span>
+                <input
+                  inputMode="tel"
+                  value={form.mobile}
+                  onChange={(event) => updateField('mobile', event.target.value)}
+                  placeholder="Es. 370..."
+                />
+              </label>
+            </div>
+            <label>
+              Matricola contatore <span className="optional-label">opzionale</span>
+              <input
+                value={form.meterSerial}
+                onChange={(event) => updateField('meterSerial', event.target.value)}
+                placeholder="Se disponibile"
               />
             </label>
             <label>

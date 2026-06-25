@@ -62,6 +62,9 @@ export type PasswordResetRequest = {
   numeroUtenza: string;
   cognome: string;
   fiscalCode: string;
+  interno?: string;
+  meterSerial?: string;
+  mobile?: string;
 };
 
 export type PasswordResetVerification = {
@@ -214,6 +217,9 @@ export type RegistrationRequest = {
   nome: string;
   cognome: string;
   fiscalCode: string;
+  interno?: string;
+  meterSerial?: string;
+  mobile?: string;
   password: string;
 };
 

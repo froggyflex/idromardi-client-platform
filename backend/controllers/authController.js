@@ -79,7 +79,7 @@ async function forgotPassword(req, res, next) {
 
       if (!result.ok) {
         return res.status(404).json({
-          message: 'Non abbiamo trovato una corrispondenza con questi dati. Verifica numero utenza, cognome e codice fiscale.',
+          message: 'Non abbiamo trovato una corrispondenza con questi dati. Se il codice fiscale non e presente in archivio, inserisci anche interno, matricola contatore o cellulare.',
         });
       }
 
