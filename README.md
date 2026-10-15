@@ -65,13 +65,21 @@ NUMERO_UTENZA_PREFIX=400
 NUMERO_UTENZA_USER_DIGITS=4
 PUBLIC_DOCUMENTS_BASE_URL=https://pub-88533bf9f0424d64ba01c1a996f49c0e.r2.dev
 PUBLIC_DOCUMENTS_OBJECT_PREFIX=generated-documents
+PUBLIC_DOCUMENTS_USER_FOLDER=bolletta_utente
+R2_BUCKET=idromardi-generated-documents
+R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
 ```
 
 `PUBLIC_DOCUMENTS_BASE_URL` must point to the public Cloudflare/R2 documents base URL when
 `ripartizione_pdfs.filepath` stores only an object path or filename. If `filepath` already stores
 the full `https://...` document URL, this setting is not required.
 `PUBLIC_DOCUMENTS_OBJECT_PREFIX` maps legacy local paths like `/storage/ripartizioni/.../file.pdf`
-to the R2 folder where the objects actually exist.
+to the R2 folder where the objects actually exist. For user bollette, the final R2 path is built as
+`generated-documents/{condominio_id}/{period_key}/bolletta_utente/{filename}`.
+If R2 object names contain generated prefixes, configure the backend-only `R2_*` credentials so the
+portal can list the target folder and resolve the exact object key before returning the download URL.
 
 ## Backend
 
@@ -130,6 +138,14 @@ If deploying from the repository root instead, use:
 
 - Build command: `npm run build`
 - Output directory: `frontend/dist`
+
+Client-side routes such as `/portal` and `/portal/profilo` must always fall back to
+`index.html` on refresh. The repository includes:
+
+- `frontend/vercel.json` for Vercel projects rooted in `frontend`.
+- `vercel.json` for Vercel projects rooted at the repository root.
+- `frontend/public/_redirects` for Cloudflare Pages/Netlify-style static hosting.
+- `frontend/public/.htaccess` for Apache/cPanel static hosting.
 
 ## Testing
 
@@ -257,6 +273,11 @@ NUMERO_UTENZA_PREFIX=400
 NUMERO_UTENZA_USER_DIGITS=4
 PUBLIC_DOCUMENTS_BASE_URL=https://pub-88533bf9f0424d64ba01c1a996f49c0e.r2.dev
 PUBLIC_DOCUMENTS_OBJECT_PREFIX=generated-documents
+PUBLIC_DOCUMENTS_USER_FOLDER=bolletta_utente
+R2_BUCKET=idromardi-generated-documents
+R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
 
 HTTP_RESPONSE_TIMEOUT_MS=15000
 DB_CONNECT_TIMEOUT_MS=8000

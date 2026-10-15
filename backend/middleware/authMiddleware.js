@@ -15,6 +15,10 @@ function authMiddleware(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Password-reset tokens are not portal sessions.
+    if (decoded.purpose || !decoded.accountGroupId || !decoded.portalUserId) {
+      return res.status(401).json({ message: "Sessione non valida." });
+    }
 
     req.user = {
       portalUserId: decoded.portalUserId,

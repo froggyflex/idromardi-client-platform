@@ -8,6 +8,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { RequestsPage } from './pages/RequestsPage';
 import type { LoginResponse } from './services/api';
 
 export default function App() {
@@ -88,6 +89,7 @@ function handleLogout() {
       >
         <Route index element={<DashboardPage />} />
         <Route path="profilo" element={<ProfilePage />} />
+        <Route path="richieste" element={<RequestsPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

@@ -11,6 +11,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 
 const router = express.Router();
+router.use('/support', require('./supportRoutes'));
 
 router.get("/me", authMiddleware, getCurrentPortalUser);
 router.put("/profile", authMiddleware, updateCurrentPortalProfile);
