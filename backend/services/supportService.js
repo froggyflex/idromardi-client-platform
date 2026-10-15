@@ -44,8 +44,8 @@ function createSupportService({ database, ensureSchema = async () => {} }) {
     SELECT apu.account_group_id, MIN(CONCAT_WS(' ', u.Nome, u.Cognome)) AS customer_name,
       MIN(apu.access_identifier) AS access_identifier, MIN(c.nome) AS building
     FROM activated_portal_users apu LEFT JOIN utenze_v2 u ON u.id COLLATE utf8mb4_unicode_ci = apu.id_auto COLLATE utf8mb4_unicode_ci
-    LEFT JOIN condomini_v2 c ON c.id = u.condominio_id GROUP BY apu.account_group_id
-  ) p ON p.account_group_id = r.account_group_id`;
+    LEFT JOIN condomini_v2 c ON c.id COLLATE utf8mb4_unicode_ci = u.condominio_id COLLATE utf8mb4_unicode_ci GROUP BY apu.account_group_id
+  ) p ON p.account_group_id COLLATE utf8mb4_unicode_ci = r.account_group_id COLLATE utf8mb4_unicode_ci`;
   return {
     async identity(actor) {
       await ready(); await customer(actor);
@@ -59,15 +59,22 @@ function createSupportService({ database, ensureSchema = async () => {} }) {
       if (status) { if (!STATUSES.includes(status)) throw failure(400, 'Stato non valido.'); conditions.push('r.status = ?'); values.push(status); }
       if (account && actor.kind === 'OPERATOR') { conditions.push('r.account_group_id = ?'); values.push(identifier(account)); }
       if (assigned && actor.kind === 'OPERATOR') { conditions.push('r.assigned_to = ?'); values.push(identifier(assigned)); }
-      if (q) { if (typeof q !== 'string' || q.length > 160) throw failure(400, 'Ricerca non valida.'); conditions.push('(r.subject LIKE ? OR p.customer_name LIKE ? OR p.access_identifier LIKE ?)'); values.push(...Array(3).fill(`%${q}%`)); }
+      if (q) {
+        if (typeof q !== 'string' || q.length > 160) throw failure(400, 'Ricerca non valida.');
+        if (actor.kind === 'CUSTOMER') { conditions.push('r.subject LIKE ?'); values.push(`%${q}%`); }
+        else { conditions.push('(r.subject LIKE ? OR p.customer_name LIKE ? OR p.access_identifier LIKE ?)'); values.push(...Array(3).fill(`%${q}%`)); }
+      }
+      // Customer requests need only their owner key; profile joins are staff-only.
+      const from = actor.kind === 'CUSTOMER' ? 'FROM portal_support_requests r' : joined;
+      const profileColumns = actor.kind === 'CUSTOMER' ? '' : ', p.customer_name, p.access_identifier, p.building';
       const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
-      const [count] = await query(`SELECT COUNT(*) AS total ${joined} ${where}`, values);
+      const [count] = await query(`SELECT COUNT(*) AS total ${from} ${where}`, values);
       const readColumn = actor.kind === 'CUSTOMER' ? 'customer_read_at' : 'operator_read_at';
       const sender = actor.kind === 'CUSTOMER' ? 'OPERATOR' : 'CUSTOMER';
-      const rows = await query(`SELECT r.*, p.customer_name, p.access_identifier, p.building,
+      const rows = await query(`SELECT r.*${profileColumns},
         (SELECT COUNT(*) FROM portal_support_messages m WHERE m.request_id = r.id AND m.visibility = 'PUBLIC' AND m.sender = ?
           AND (r.${readColumn} IS NULL OR m.created_at > r.${readColumn})) AS unread
-        ${joined} ${where} ORDER BY r.updated_at DESC, r.id DESC LIMIT 25 OFFSET ?`, [sender, ...values, (currentPage - 1) * 25]);
+        ${from} ${where} ORDER BY r.updated_at DESC, r.id DESC LIMIT 25 OFFSET ?`, [sender, ...values, (currentPage - 1) * 25]);
       return { items: rows.map(row => ({ ...present(row, actor), unread: Number(row.unread) })), total: Number(count.total), page: currentPage, pageSize: 25 };
     },
     async detail(id, actor, before) {
@@ -166,13 +173,13 @@ function createSupportService({ database, ensureSchema = async () => {} }) {
       if (status) { conditions.push('apu.status = ?'); values.push(status); }
       if (q) { if (typeof q !== 'string' || q.length > 160) throw failure(400, 'Ricerca non valida.'); conditions.push("CONCAT_WS(' ', u.Nome, u.Cognome, apu.email, apu.access_identifier, c.nome) LIKE ?"); values.push(`%${q}%`); }
       const from = `FROM activated_portal_users apu LEFT JOIN utenze_v2 u ON u.id COLLATE utf8mb4_unicode_ci = apu.id_auto COLLATE utf8mb4_unicode_ci
-        LEFT JOIN condomini_v2 c ON c.id = u.condominio_id ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}`;
+        LEFT JOIN condomini_v2 c ON c.id COLLATE utf8mb4_unicode_ci = u.condominio_id COLLATE utf8mb4_unicode_ci ${conditions.length ? 'WHERE ' + conditions.join(' AND ') : ''}`;
       const [total] = await query(`SELECT COUNT(DISTINCT apu.account_group_id) AS total ${from}`, values);
       const items = await query(`SELECT apu.account_group_id AS id, MIN(CONCAT_WS(' ', u.Nome, u.Cognome)) AS name,
         MIN(apu.access_identifier) AS accessIdentifier, MIN(apu.email) AS email, MAX(u.Mobile) AS phone,
         COUNT(*) AS linkedCount, MIN(c.nome) AS building, MIN(apu.activated_at) AS registeredAt, MAX(apu.last_login_at) AS lastLogin,
         IF(SUM(apu.status = 'ACTIVE') > 0, 'ACTIVE', 'DISABLED') AS status,
-        (SELECT COUNT(*) FROM portal_support_requests r WHERE r.account_group_id = apu.account_group_id AND r.status <> 'RESOLVED') AS openRequests
+        (SELECT COUNT(*) FROM portal_support_requests r WHERE r.account_group_id COLLATE utf8mb4_unicode_ci = apu.account_group_id COLLATE utf8mb4_unicode_ci AND r.status <> 'RESOLVED') AS openRequests
         ${from} GROUP BY apu.account_group_id ORDER BY registeredAt DESC LIMIT 25 OFFSET ?`, [...values, (currentPage - 1) * 25]);
       return { items, total: Number(total.total), page: currentPage, pageSize: 25 };
     },
@@ -182,7 +189,7 @@ function createSupportService({ database, ensureSchema = async () => {} }) {
         apu.status, apu.email, apu.last_login_at AS lastLogin, u.Nome AS firstName, u.Cognome AS lastName, u.Mobile AS phone,
         u.Interno AS interno, u.Scala AS scala, c.id AS buildingId, c.nome AS building, c.codice AS buildingCode
         FROM activated_portal_users apu LEFT JOIN utenze_v2 u ON u.id COLLATE utf8mb4_unicode_ci = apu.id_auto COLLATE utf8mb4_unicode_ci
-        LEFT JOIN condomini_v2 c ON c.id = u.condominio_id WHERE apu.account_group_id = ? ORDER BY apu.id_user`, [id]);
+        LEFT JOIN condomini_v2 c ON c.id COLLATE utf8mb4_unicode_ci = u.condominio_id COLLATE utf8mb4_unicode_ci WHERE apu.account_group_id = ? ORDER BY apu.id_user`, [id]);
       if (!links.length) throw failure(404, 'Account non trovato.'); return { id, links };
     },
     async accountStatus(id, actor, status) {

@@ -1,5 +1,17 @@
 const test = require('node:test'), assert = require('node:assert/strict'), crypto = require('node:crypto');
 const { fixture } = require('./support.test-fixture');
+test('customer request history remains available without staff profile-table joins', async () => {
+  const f = fixture(); await f.service.create(f.customer, f.input());
+  const originalQuery = f.database.query;
+  f.database.query = (sql, ...args) => {
+    if (sql.includes('JOIN utenze_v2') || sql.includes('JOIN condomini_v2')) throw Object.assign(new Error('Profile tables unavailable'), { code: 'ER_TABLEACCESS_DENIED_ERROR' });
+    return originalQuery(sql, ...args);
+  };
+  const listing = await f.service.list(f.customer);
+  assert.equal(listing.total, 1); assert.equal(listing.items.length, 1);
+  assert.equal((await f.service.list(f.other)).total, 0);
+  assert(!('customer_name' in listing.items[0]));
+});
 test('customer requests are scoped to verified account groups and linked utenze; retries do not duplicate', async () => {
   const f = fixture(), input = f.input(); input.accountGroupId = f.other.id;
   const created = await f.service.create(f.customer, input); assert.equal(created.request.status, 'NEW');

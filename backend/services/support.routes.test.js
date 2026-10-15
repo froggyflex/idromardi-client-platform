@@ -39,3 +39,22 @@ test('customer HTTP API accepts only portal sessions and scopes all requests, li
     assert.equal((await call('/requests')).status, 403);
   } finally { await new Promise(resolve => server.close(resolve)); if (previousSecret === undefined) delete process.env.JWT_SECRET; else process.env.JWT_SECRET = previousSecret; }
 });
+
+test('unexpected support failure returns a reference and records a safe server diagnostic', async () => {
+  const logged = [], previousError = console.error;
+  console.error = (...args) => logged.push(args);
+  const app = express();
+  app.use('/support', createCustomerRouter({
+    authenticate: (req, _res, next) => { req.user = { accountGroupId: crypto.randomUUID() }; next(); },
+    support: { async list() { throw Object.assign(new Error('SQL with private-message and secret-token'), { code: 'ER_CANT_AGGREGATE_2COLLATIONS', errno: 1267, sqlState: 'HY000' }); } },
+  }));
+  const server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve));
+  try {
+    const response = await fetch(`http://127.0.0.1:${server.address().port}/support/requests`);
+    assert.equal(response.status, 503); const body = await response.json();
+    assert.equal(body.message, 'Assistenza momentaneamente non disponibile. Riprova tra poco.');
+    assert.match(body.reference, /^[a-f0-9-]{36}$/); assert.equal(logged.length, 1);
+    const diagnostic = JSON.parse(logged[0][1]); assert.equal(diagnostic.reference, body.reference); assert.equal(diagnostic.code, 'ER_CANT_AGGREGATE_2COLLATIONS');
+    assert(!JSON.stringify(body).includes('private')); assert(!JSON.stringify(logged).includes('secret-token'));
+  } finally { console.error = previousError; await new Promise(resolve => server.close(resolve)); }
+});

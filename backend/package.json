@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "commonjs",
   "scripts": {
-    "test:customer-support": "node --check services/supportSchema.js && node --test services/supportService.test.js services/support.routes.test.js",
+    "test:customer-support": "node --check services/supportSchema.js && node --test services/supportService.test.js services/support.routes.test.js services/supportSchema.test.js services/supportErrors.test.js",
     "dev": "node server.js",
     "start": "node server.js"
   },

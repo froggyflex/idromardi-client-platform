@@ -3,6 +3,7 @@ const pool = require('../config/db');
 const authMiddleware = require('../middleware/authMiddleware');
 const { createSupportService } = require('../services/supportService');
 const { createSchemaInitializer } = require('../services/supportSchema');
+const { reportSupportError } = require('../services/supportErrors');
 const service = createSupportService({ database: pool, ensureSchema: createSchemaInitializer(pool) });
 function createCustomerRouter({ support = service, authenticate = authMiddleware } = {}) {
   const router = express.Router(); router.use(authenticate);
@@ -10,7 +11,13 @@ function createCustomerRouter({ support = service, authenticate = authMiddleware
   const route = action => async (req, res) => {
     res.set('Cache-Control', 'no-store');
     try { res.json(await action(req)); }
-    catch (error) { res.status(error.statusCode || 503).json({ message: error.publicMessage || (error.statusCode ? error.message : 'Assistenza momentaneamente non disponibile. Riprova tra poco.') }); }
+    catch (error) {
+      if (!error.statusCode || error.statusCode >= 500) {
+        const reference = reportSupportError(error, req);
+        return res.status(503).json({ message: 'Assistenza momentaneamente non disponibile. Riprova tra poco.', reference });
+      }
+      res.status(error.statusCode).json({ message: error.publicMessage || error.message });
+    }
   };
   router.get('/identity', route(req => support.identity(actor(req))));
   router.get('/summary', route(req => support.summary(actor(req))));
