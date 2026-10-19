@@ -1,4 +1,5 @@
-import { MapPin, Phone, User } from 'lucide-react';
+import { MapPin, Phone, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { Customer } from '../types/portal';
 
 type ProfilePanelProps = {
@@ -8,15 +9,14 @@ type ProfilePanelProps = {
 
 export function ProfilePanel({ customer, serviceNotes: _serviceNotes }: ProfilePanelProps) {
   const profileItems = [
-    { icon: <User size={17} />, label: 'Intestatario', value: customer.name },
-    { icon: <Phone size={17} />, label: 'Telefono', value: customer.phone || customer.mobile || 'Non indicato' },
-    { icon: <Phone size={17} />, label: 'Cellulare', value: customer.mobile || 'Non indicato' },
+    ...(customer.phone || customer.mobile ? [{ icon: <Phone size={17} />, label: 'Recapito', value: customer.mobile || customer.phone }] : []),
     { icon: <MapPin size={17} />, label: 'Indirizzo fornitura', value: customer.address },
   ];
 
   return (
     <aside className="profile-column">
       <section className="panel profile-panel">
+        <div className="profile-summary-heading">
         <div className="avatar" aria-hidden="true">
           {customer.name
             .split(' ')
@@ -24,9 +24,9 @@ export function ProfilePanel({ customer, serviceNotes: _serviceNotes }: ProfileP
             .join('')
             .slice(0, 2)}
         </div>
-        <h2>{customer.name}</h2>
-        <p>{customer.accountNo}</p>
+        <div><h2>{customer.name}</h2><p>{customer.accountNo}</p></div>
         <span className="status-pill">{customer.status}</span>
+        </div>
         <div className="profile-list">
           {profileItems.map((item) => (
             <div className="profile-item" key={item.label}>
@@ -38,6 +38,7 @@ export function ProfilePanel({ customer, serviceNotes: _serviceNotes }: ProfileP
             </div>
           ))}
         </div>
+        <Link className="profile-manage-link" to="/portal/profilo">Gestisci il profilo <ArrowUpRight size={17} /></Link>
       </section>
 
       {/* <section className="panel notice-panel">

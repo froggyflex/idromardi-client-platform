@@ -6,7 +6,8 @@ const API_BASE_URL =
   
  export async function askPortalAssistant(
   token: string,
-  message: string
+  message: string,
+  signal?: AbortSignal
 ): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/portal/chat`, {
     method: "POST",
@@ -15,6 +16,7 @@ const API_BASE_URL =
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ message }),
+    signal,
   });
 
   const data = (await response.json()) as { answer?: string; message?: string };

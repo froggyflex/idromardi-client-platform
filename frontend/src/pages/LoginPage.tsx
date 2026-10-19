@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { ArrowLeft, Droplets, KeyRound, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Droplets, KeyRound, ShieldCheck, UserRoundPlus } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BrandLogo } from '../components/BrandLogo';
 import { completePasswordReset, login, verifyPasswordResetIdentity } from '../services/api';
@@ -322,6 +322,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     Numero utenza
                     <input
                       inputMode="text"
+                      autoComplete="username"
                       value={numeroUtenza}
                       onChange={(event) => setNumeroUtenza(event.target.value.replace(/\s+/g, ''))}
                       placeholder="40010001/2"
@@ -332,6 +333,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     Password
                     <input
                       type="password"
+                      autoComplete="current-password"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       placeholder="Inserisci la password"
@@ -349,8 +351,9 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     Hai dimenticato la password?
                   </button>
                 </div>
-                <Link className="register-button" to="/registrati">
-                  Registrati
+                <Link className="register-button registration-cta" to="/registrati">
+                  <span className="registration-cta-icon"><UserRoundPlus size={23} /></span>
+                  <span><strong>Registrati</strong><small>Crea il tuo accesso al portale</small></span><ArrowRight size={19} />
                 </Link>
               </>
             )}
