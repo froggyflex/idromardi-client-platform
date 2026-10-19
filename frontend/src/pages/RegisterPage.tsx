@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { ArrowLeft, Droplets, Send } from 'lucide-react';
+import { ArrowLeft, Droplets, Eye, EyeOff, LoaderCircle, ShieldCheck, UserRoundPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BrandLogo } from '../components/BrandLogo';
 import { requestRegistration } from '../services/api';
@@ -33,6 +33,7 @@ export function RegisterPage() {
   const [form, setForm] = useState(initialForm);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   function updateField(field: keyof RegisterForm, value: string) {
     setForm((currentForm) => ({ ...currentForm, [field]: value }));
@@ -85,10 +86,9 @@ export function RegisterPage() {
           Registrazione utenza
         </div>
         <div className="login-copy">
-          <h1>Richiedi l'accesso al portale clienti.</h1>
+          <h1>La tua utenza, sempre a portata di mano.</h1>
           <p>
-            Inserisci i dati utenza. Se il codice fiscale non e presente in
-            archivio, useremo anche interno, matricola o cellulare per la verifica.
+            Bollette, consumi e assistenza in un unico spazio, ovunque ti trovi.
           </p>
         </div>
       </section>
@@ -101,18 +101,19 @@ export function RegisterPage() {
           </Link>
           <div>
             <p className="eyebrow">Nuovo accesso</p>
-            <h2>Registrati</h2>
+            <h2>Crea il tuo account</h2>
             <p>
-              Il numero utenza puo essere semplice, ad esempio 40010001, oppure
-              includere piu utenti, ad esempio 40010001/2. Il condominio viene
-              ricavato automaticamente.
+              Trovi il numero utenza sulla bolletta. Inserisci i dati
+              dell'intestatario per verificare la tua fornitura.
             </p>
           </div>
           <form onSubmit={handleSubmit}>
+            <h3 className="registration-step"><span>1</span>I dati della tua utenza</h3>
             <label>
               Numero utenza
               <input
                 inputMode="text"
+                autoComplete="username"
                 value={form.numeroUtenza}
                 onChange={(event) =>
                   updateField('numeroUtenza', event.target.value.replace(/\s+/g, ''))
@@ -128,6 +129,7 @@ export function RegisterPage() {
                 Nome
                 <input
                   value={form.nome}
+                  autoComplete="given-name"
                   onChange={(event) => updateField('nome', event.target.value)}
                   placeholder="Mario"
                   required
@@ -137,6 +139,7 @@ export function RegisterPage() {
                 Cognome
                 <input
                   value={form.cognome}
+                  autoComplete="family-name"
                   onChange={(event) => updateField('cognome', event.target.value)}
                   placeholder="Rossi"
                   required
@@ -147,6 +150,7 @@ export function RegisterPage() {
               Codice fiscale
               <input
                 value={form.fiscalCode}
+                autoCapitalize="characters"
                 onChange={(event) => updateField('fiscalCode', event.target.value.toUpperCase())}
                 placeholder="Il tuo codice fiscale"
                 required
@@ -154,7 +158,7 @@ export function RegisterPage() {
             </label>
             <div className="form-grid">
               <label>
-                Interno <span className="optional-label">opzionale</span>
+                Interno (opzionale)
                 <input
                   value={form.interno}
                   onChange={(event) => updateField('interno', event.target.value)}
@@ -162,9 +166,10 @@ export function RegisterPage() {
                 />
               </label>
               <label>
-                Cellulare <span className="optional-label">opzionale</span>
+                Cellulare (opzionale)
                 <input
                   inputMode="tel"
+                  autoComplete="tel"
                   value={form.mobile}
                   onChange={(event) => updateField('mobile', event.target.value)}
                   placeholder="Es. 370..."
@@ -172,27 +177,33 @@ export function RegisterPage() {
               </label>
             </div>
             <label>
-              Matricola contatore <span className="optional-label">opzionale</span>
+              Matricola contatore (opzionale)
               <input
                 value={form.meterSerial}
                 onChange={(event) => updateField('meterSerial', event.target.value)}
                 placeholder="Se disponibile"
               />
             </label>
-            <label>
-              Password
-              <input
-                type="password"
+            <h3 className="registration-step"><span>2</span>Scegli la tua password</h3>
+            <div className="registration-password-field">
+              <label htmlFor="registration-password">Password</label>
+              <span className="password-input-wrap"><input
+                id="registration-password"
+                aria-describedby="registration-password-help"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
                 minLength={8}
                 value={form.password}
                 onChange={(event) => updateField('password', event.target.value)}
                 required
-              />
-            </label>
+              /><button type="button" aria-label={showPassword ? 'Nascondi password' : 'Mostra password'} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={19} /> : <Eye size={19} />}</button></span>
+              <small className="password-help" id="registration-password-help">Usa almeno 8 caratteri.</small>
+            </div>
             <label>
               Conferma password
               <input
                 type="password"
+                autoComplete="new-password"
                 minLength={8}
                 value={form.confirmPassword}
                 onChange={(event) => updateField('confirmPassword', event.target.value)}
@@ -200,19 +211,19 @@ export function RegisterPage() {
               />
             </label>
             {message && (
-              <p className={status === 'success' ? 'form-success' : 'form-error'}>{message}</p>
+              <p role={status === 'success' ? 'status' : 'alert'} className={status === 'success' ? 'form-success' : 'form-error'}>{message}</p>
             )}
             <button
               className="primary-button login-submit"
               type="submit"
               disabled={status === 'submitting' || status === 'success'}
             >
-              <Send size={18} />
+              {status === 'submitting' ? <LoaderCircle size={19} className="spin" /> : status === 'success' ? <ShieldCheck size={19} /> : <UserRoundPlus size={19} />}
               {status === 'submitting'
                 ? 'Verifica in corso...'
                 : status === 'success'
                   ? 'Account creato'
-                  : 'Crea account'}
+                  : 'Crea il tuo account'}
             </button>
             {status === 'success' && (
               <Link className="register-button" to="/">

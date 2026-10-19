@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Droplets, FileText, Gauge } from 'lucide-react';
-import { ChatWidget } from "../components/ChatWidget";
 import { InvoiceTable } from '../components/InvoiceTable';
 import { MetricCard } from '../components/MetricCard';
 import { ProfilePanel } from '../components/ProfilePanel';
@@ -110,9 +109,8 @@ const averageUsage = useMemo(() => {
         <div>
           <p className="eyebrow">Portale clienti Idromardi</p>
           <h1>Ciao, {data.customer.name.split(' ')[0]}</h1>
-          <span>  
-            Il contatore {data.customer.meterNo === "0000" ? "" : data.customer.meterNo} risulta collegato come {data.customer.tariff}.
-          </span>
+          <span>Le tue bollette, i consumi e i servizi, in un unico posto.</span>
+          <div className="portal-account-context"><span>Utenza <strong>{data.customer.accountNo}</strong></span>{data.customer.meterNo !== '0000' && <span>Contatore <strong>{data.customer.meterNo}</strong></span>}</div>
         </div>
       </header>
 
@@ -121,19 +119,19 @@ const averageUsage = useMemo(() => {
           icon={<FileText size={22} />}
           label="Ultima bolletta"
           value={formatCurrency(latestInvoicedPeriod?.amount ?? 0)}
-          detail={`Totale bolletta per ${currentInvoice?.period ?? 'n.d.'}`}
+          detail={currentInvoice?.period ?? 'Nessuna bolletta disponibile'}
         />
         <MetricCard
           icon={<Droplets size={22} />}
           label="Ultimo consumo"
           value={`${latestInvoicedPeriod?.consumption ?? 0} mc`}
-          detail={(`Consumo totale per ${latestInvoicedPeriod?.period ?? 'n.d.'}`)}
+          detail={latestInvoicedPeriod?.period ?? 'Nessun consumo disponibile'}
         />
         <MetricCard
           icon={<Gauge size={22} />}
-          label="Media sei mesi"
-          value={`${averageUsage} mc`}
-          detail="Basata su letture verificate"
+          label="Consumo medio"
+          value={`${Number(averageUsage).toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mc`}
+          detail="Sulle bollette disponibili"
         />
       </section>
 
@@ -149,7 +147,6 @@ const averageUsage = useMemo(() => {
    
         
       </div>
-           <ChatWidget />
     </main>
   );
 }
